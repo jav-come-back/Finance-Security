@@ -25,7 +25,7 @@
         .btn-modern { box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: all 0.2s ease; }
         .btn-modern:active { transform: scale(0.96); }
         #map { height: 200px; border-radius: 1rem; margin-top: 10px; }
-        .draggable-widget { cursor: move; }
+        .draggable-widget { transition: border 0.2s ease, box-shadow 0.2s ease; }
         .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
         @media all and (display-mode: standalone) { body { padding-bottom: 75px; } }
     </style>
@@ -99,7 +99,7 @@
                         <i class="fa-solid fa-chart-pie text-indigo-500"></i> <span class="data-lang" data-km="ផ្ទាំងគ្រប់គ្រង" data-en="Dashboard">ផ្ទាំងគ្រប់គ្រង</span>
                     </button>
                     <button id="nav-scanners" onclick="switchSection('scanners')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
-                        <i class="fa-solid fa-radar text-amber-500"></i> <span class="data-lang" data-km="ប្រព័ន្ធស្កេនឆ្លាតវៃ" data-en="Smart Scanners">ប្រព័ន្ធស្កេនឆ្លាតវៃ</span>
+                        <i class="fa-solid fa-radar text-amber-500"></i> <span class="data-lang" data-km="ប្រقافةស្កេនឆ្លាតវៃ" data-en="Smart Scanners">ប្រព័ន្ធស្កេនឆ្លាតវៃ</span>
                     </button>
                     <button id="nav-daily" onclick="switchSection('daily')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
                         <i class="fa-solid fa-list-check text-emerald-500"></i> <span class="data-lang" data-km="គោលដៅប្រចាំថ្ងៃ" data-en="Daily List">គោលដៅប្រចាំថ្ងៃ</span>
@@ -151,6 +151,12 @@
                             </div>
                             <p class="text-[9px] text-slate-400 data-lang" data-km="គណនីប្រើប្រាស់ផ្ទាល់ខ្លួន" data-en="Personal Verified Profile">គណនីប្រើប្រាស់ផ្ទាល់ខ្លួន</p>
                         </div>
+                    </div>
+                    <div>
+                        <button id="toggle-layout-btn" onclick="toggleLayoutEdit()" class="bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl btn-modern flex items-center space-x-1">
+                            <i class="fa-solid fa-sliders text-amber-400 mr-1" id="layout-btn-icon"></i>
+                            <span id="layout-btn-text" class="data-lang" data-km="កែសម្រួលផ្ទាំង (Edit)" data-en="Edit Layout">កែសម្រួលផ្ទាំង (Edit)</span>
+                        </button>
                     </div>
                 </div>
 
@@ -364,6 +370,10 @@
         let isBioEnabled = false;
         let mapInstance = null;
 
+        // 🔄 LAYOUT STATE CONTROLS
+        let isLayoutEditable = false;
+        let sortableInstance = null;
+
         // 🗓️ TIME AND CLOCK LOGIC
         function updateTopBarTime() {
             const now = new Date();
@@ -378,10 +388,52 @@
             }
         }
 
-        // 🔄 DRAG AND DROP
+        // 🔄 INITIALIZE DRAG AND DROP
         function initDragAndDrop() {
             const container = document.getElementById('dashboard-sortable-container');
-            Sortable.create(container, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-widget' });
+            sortableInstance = Sortable.create(container, { 
+                animation: 150, 
+                ghostClass: 'sortable-ghost',
+                disabled: true 
+            });
+            updateWidgetsCursor();
+        }
+
+        // 🔄 TOGGLE EDIT / SAVE LAYOUT
+        function toggleLayoutEdit() {
+            isLayoutEditable = !isLayoutEditable;
+            const btnText = document.getElementById('layout-btn-text');
+            const btnIcon = document.getElementById('layout-btn-icon');
+            const btn = document.getElementById('toggle-layout-btn');
+
+            if (isLayoutEditable) {
+                sortableInstance.option('disabled', false);
+                btn.className = "bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl btn-modern flex items-center space-x-1";
+                btnIcon.className = "fa-solid fa-floppy-disk text-white mr-1";
+                btnText.innerText = currentLang === 'km' ? "រក្សាទុក (Save)" : "Save Layout";
+                showNotification("✍️ ចាប់ផ្តើមបើកមុខងារអូសទាញសារ៉េផ្ទាំង Dashboard!");
+            } else {
+                sortableInstance.option('disabled', true);
+                btn.className = "bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl btn-modern flex items-center space-x-1";
+                btnIcon.className = "fa-solid fa-sliders text-amber-400 mr-1";
+                btnText.innerText = currentLang === 'km' ? "កែសម្រួលផ្ទាំង (Edit)" : "Edit Layout";
+                showNotification("🔒 បានចាក់សោរក្សាទុកទីតាំង Dashboard រួចរាល់!");
+            }
+            updateWidgetsCursor();
+        }
+
+        // 🔄 UPDATE WIDGET CURSORS AND BORDERS
+        function updateWidgetsCursor() {
+            const widgets = document.querySelectorAll('.draggable-widget');
+            widgets.forEach(w => {
+                if (isLayoutEditable) {
+                    w.style.cursor = 'move';
+                    w.style.border = '2px dashed #6366f1';
+                } else {
+                    w.style.cursor = 'default';
+                    w.style.border = '1px solid #f1f5f9';
+                }
+            });
         }
 
         // ⚙️ SETTINGS SYSTEM LOGIC
@@ -394,6 +446,15 @@
                 const text = el.getAttribute(`data-${lang}`);
                 if (text) el.innerText = text;
             });
+            
+            const btnText = document.getElementById('layout-btn-text');
+            if (btnText) {
+                if (isLayoutEditable) {
+                    btnText.innerText = lang === 'km' ? "រក្សាទុក (Save)" : "Save Layout";
+                } else {
+                    btnText.innerText = lang === 'km' ? "កែសម្រួលផ្ទាំង (Edit)" : "Edit Layout";
+                }
+            }
             updateTopBarTime();
         }
 
@@ -759,7 +820,7 @@
         function openForgotModal() { document.getElementById('forgot-modal').classList.remove('hidden'); }
         function closeForgotModal() { document.getElementById('forgot-modal').classList.add('hidden'); }
 
-        // 🔐 AUTH SYSTEM LOGIC (បានធ្វើបច្ចុប្បន្នភាពលក្ខខណ្ឌចុះឈ្មោះ ការពារឈ្មោះជាន់គ្នាដាច់ខាត)
+        // 🔐 AUTH SYSTEM LOGIC
         function handleAuth(e) {
             e.preventDefault();
             const userField = document.getElementById('auth-username');
@@ -779,7 +840,6 @@
             authBtn.disabled = true;
 
             if (authTab === 'signup') {
-                // 🛑 លក្ខខណ្ឌកែសម្រួលថ្មី៖ ពិនិត្យមើលថាតើមានឈ្មោះអ្នកប្រើប្រាស់ (Username) នេះក្នុងប្រព័ន្ធហើយឬនៅ
                 if (localUsers[currentUser] !== undefined) {
                     alert("❌ ឈ្មោះអ្នកប្រើប្រាស់នេះមានរួចហើយនៅក្នុងប្រព័ន្ធ! ទោះបីជាចង់ប្រើលេខសម្ងាត់ដូចគ្នា ឬខុសគ្នាក៏មិនអាចចុះឈ្មោះជាន់ឈ្មោះចាស់បានដែរ។");
                     authBtn.innerText = originalBtnText; 
@@ -787,16 +847,14 @@
                     return;
                 }
                 
-                // បើជាឈ្មោះថ្មីស្រឡាង ទើបអនុញ្ញាតឱ្យចុះឈ្មោះចូល LocalStorage និង Google Sheets
                 localUsers[currentUser] = pass;
                 localStorage.setItem('finance_cloud_users', JSON.stringify(localUsers));
 
                 syncWithGoogleSheets({ DATA_TYPE: "USER_REG", FIELD_1: currentUser, FIELD_2: pass, FIELD_3: currentTheme });
-                showNotification("🎉 ចុះឈ្មោះគណនីរួចរាល់!");
+                showNotification("🎉 จុះឈ្មោះគណនីរួចរាល់!");
                 authBtn.innerText = originalBtnText; authBtn.disabled = false;
                 proceedToApp();
             } else {
-                // ទំព័រ Login ចូលប្រើប្រាស់
                 if (!localUsers[currentUser] || localUsers[currentUser] !== pass) {
                     alert("❌ ឈ្មោះអ្នកប្រើប្រាស់ ឬ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
                     authBtn.innerText = originalBtnText; authBtn.disabled = false; return;
